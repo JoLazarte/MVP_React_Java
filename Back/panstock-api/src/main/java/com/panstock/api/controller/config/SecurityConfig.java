@@ -1,6 +1,7 @@
 package com.panstock.api.controller.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -18,6 +19,7 @@ import com.panstock.api.enums.Role;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -30,6 +32,10 @@ public class SecurityConfig {
     @Autowired
     @Lazy
     private AuthenticationProvider authenticationProvider;
+
+    /** Orígenes permitidos por CORS (propiedad app.cors.allowed-origins, separados por coma). */
+    @Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -102,7 +108,8 @@ public class SecurityConfig {
                     // ── Settings: OWNER only ───────────────────────────────────────────
                     .requestMatchers("/api/settings/**").hasRole(Role.OWNER.name())
 
-                    .requestMatchers("/actuator/**").permitAll()
+                    // ── Actuator: solo el chequeo de salud es público ─────────────────
+                    .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
 
                     // ── Anything else: authenticated ───────────────────────────────────
                     .anyRequest().authenticated()
@@ -118,7 +125,7 @@ public class SecurityConfig {
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         
-        corsConfig.setAllowedOrigins(List.of("*"));
+        corsConfig.setAllowedOrigins(Arrays.asList(allowedOrigins));
         corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfig.setAllowCredentials(false);
         corsConfig.addAllowedHeader("*");

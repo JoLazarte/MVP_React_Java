@@ -28,6 +28,6 @@ target/
 ### VS Code ###
 .vscode/
 
-## Data Base ##
-!**/src/main/resources/application.properties
-!**/src/main/resources/application-prod.properties
+## Configuración local con secretos (no se sube) ##
+**/src/main/resources/application.properties
+**/src/main/resources/application-prod.properties

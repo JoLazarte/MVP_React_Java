@@ -7,6 +7,9 @@
 -- Uso Windows:
 --   mysql -u root -p < panstock_schema_mock.sql
 -- =========================================================
+-- ANTES DE EJECUTAR: reemplazá la clave 'panstock123' por la
+-- contraseña que decidas usar para panstock_user, y poné esa misma contraseña en
+-- application.properties (spring.datasource.password), que será ignorado por git.
 
 DROP DATABASE IF EXISTS panstock_db;
 CREATE DATABASE panstock_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

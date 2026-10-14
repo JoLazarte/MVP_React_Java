@@ -29,5 +29,4 @@ target/
 .vscode/
 
 ## Configuración local con secretos (no se sube) ##
-**/src/main/resources/application.properties
-**/src/main/resources/application-prod.properties
+**/src/main/resources/application-local.properties

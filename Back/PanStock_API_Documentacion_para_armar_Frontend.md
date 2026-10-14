@@ -4,7 +4,7 @@
 
 Antes de correr esta API es necesario correr el archivo .sql, que está dentro de la carpeta database, en un motor de mysql.
 
-También, se debe actualizar el usuario y contaraseña (segun corresponda) en el archivo application.properties para acceder a la bd creada previamente.
+Luego, se debe crear el archivo `src/main/resources/application-local.properties` (ignorado por git) con el usuario y la contraseña de MySQL y una clave JWT propia, para acceder a la bd creada previamente. Las instrucciones están al principio de `application.properties`.
 
 ## Consideraciones
 

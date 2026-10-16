@@ -2458,10 +2458,6 @@ PATCH /api/alerts/{id}/resolve
 
 Actualmente no está implementado:
 
-- login;
-- JWT;
-- permisos por rol;
-- frontend;
 - integración con caja registradora;
 - generación automática programada de alertas;
 - envío de notificaciones por WhatsApp/Telegram/email;
@@ -2471,4 +2467,4 @@ Actualmente no está implementado:
 
 Estos puntos quedan para futuras versiones.
 
-Para el MVP actual, el backend ya permite construir una interfaz completa de gestión de inventario, vencimientos, mermas, promociones, alertas y reportes.
+Para el MVP actual, el backend permite construir una interfaz completa de gestión de inventario, vencimientos, mermas, promociones, alertas y reportes.

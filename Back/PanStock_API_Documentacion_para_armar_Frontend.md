@@ -1,4 +1,4 @@
-# PanStock API - Documentación para Frontend
+# PanStock API - Documentación para el Frontend
 
 ## Requisitos previos
 
@@ -21,19 +21,9 @@ Luego, se debe crear el archivo `src/main/resources/application-local.properties
 | PUT /api/settings/** | solo OWNER | solo OWNER ✓|
 | GET /api/reports/** | solo OWNER | solo OWNER ✓|
 | POST /api/promotions | solo OWNER | solo OWNER ✓|
-
-## 1. Objetivo de este documento
-
-Este documento describe los endpoints disponibles del backend de **PanStock** y brinda el contexto necesario para construir el frontend en React sin tener que revisar el código Java.
-
-La idea es que el equipo de frontend pueda entender:
-
-- qué problema resuelve cada módulo;
-- qué endpoints existen;
-- qué datos debe enviar el frontend;
-- qué datos devuelve el backend;
-- qué validaciones importantes debe conocer la interfaz;
-- qué pantallas o flujos se pueden construir a partir de cada endpoint.
+| PATCH /api/promotions/{id}/cancel | solo OWNER | solo OWNER ✓|
+| POST /users (crear empleado) | solo OWNER | solo OWNER ✓|
+| PATCH /users/{id}/enable y /disable | solo OWNER | solo OWNER ✓|
 
 ---
 
@@ -174,15 +164,14 @@ new Intl.NumberFormat("es-AR", {
 
 ## 5. Manejo general de errores
 
-El backend usa excepciones controladas para errores frecuentes.
-
-Los errores suelen devolver un JSON similar a:
+El backend usa excepciones controladas para los errores frecuentes y las traduce a un JSON uniforme:
 
 ```json
 {
+  "timestamp": "2026-05-08T16:30:00",
   "status": 400,
-  "message": "La cantidad vendida debe ser mayor a cero.",
-  "timestamp": "2026-05-08T16:30:00"
+  "error": "Bad Request",
+  "message": "La cantidad vendida debe ser mayor a cero."
 }
 ```
 
@@ -190,11 +179,14 @@ Los códigos más comunes son:
 
 | Código | Significado | Caso típico |
 |---|---|---|
-| 400 | Bad Request | Datos inválidos, stock insuficiente, fechas incorrectas |
+| 400 | Bad Request | Datos inválidos, stock insuficiente, fechas incorrectas, usuario o email duplicado |
+| 400 | Validation Error | Falla una validación del request. `message` viene como `campo: mensaje`, por ejemplo `password: La contraseña debe tener entre 8 y 72 caracteres.` |
+| 401 | Unauthorized | Token vencido o inválido, usuario deshabilitado, o credenciales incorrectas en el login |
+| 403 | Forbidden | El rol del usuario no permite la operación (o el request no trae token) |
 | 404 | Not Found | Producto, lote, usuario o recurso inexistente |
-| 500 | Internal Server Error | Error no controlado |
+| 500 | Internal Server Error | Error no controlado. El detalle queda en el log del servidor |
 
-El frontend debería mostrar el campo `message` al usuario siempre que exista.
+El frontend debería mostrar el campo `message` al usuario siempre que exista, y `error` si no.
 
 ---
 
@@ -843,87 +835,21 @@ active = false
 
 ## 11.1. Contexto
 
-Los usuarios se usan para trazabilidad: saber quién registró una merma, una venta, un ajuste o una promoción.
+Los usuarios se usan para trazabilidad: saber quién registró una merma, una venta, un ajuste o una promoción. El autor siempre sale del usuario autenticado (token JWT), nunca se envía en el request.
+
+**No hay registro abierto.** Los usuarios dueños (`OWNER`) salen del script SQL. Un dueño crea las cuentas de los empleados con `POST /users` y les pasa el usuario y la contraseña inicial. Los empleados creados siempre tienen rol `EMPLOYEE`.
+
+Acceso (ver `SecurityConfig`): `POST /auth/authenticate` es público; `GET /users/data` y `PUT /users/update` los puede usar cualquier usuario autenticado; el resto de `/users/**` es solo para `OWNER`.
 
 ---
 
-## 11.2. Listar usuarios
+## 11.2. Iniciar sesión
 
 ```http
-GET /api/users
+POST /auth/authenticate
+Content-Type: application/json
 ```
 
-### Query params opcionales
-
-| Parámetro | Tipo | Ejemplo |
-|---|---|---|
-| `enabledOnly` | boolean | `true` |
-| `role` | Role | `OWNER` |
-
-Ejemplos:
-
-```http
-GET /api/users?enabledOnly=true
-```
-
-```http
-GET /api/users?role=EMPLOYEE
-```
-
-### Response
-
-```json
-[
-  {
-    "id": 1,
-    "firstName": "Ramiro",
-    "lastName": "Admin",
-    "email": "admin@panstock.local",
-    "role": "ADMIN_OWNER",
-    "enabled": true
-  }
-]
-```
-
-No se devuelve contraseña.
-
----
-
-## 11.3. Obtener usuario por ID
-
-```http
-GET /api/users/{id}
-```
----
-
-## 11.4. Crear usuario desde Postman con JWToken
-
-```
-Método: POST
-URL: {{base_url}}/auth/register
-Headers: Content-Type: application/json
-Body → raw → JSON:
-```
-### Request
-
-```json
-{
-  "username": "usuarioprueba",
-  "firstName": "Pepe",
-  "lastName": "Jefe",
-  "email": "pepejefe@panstock.local",
-  "password": "1234",
-  "role": "OWNER"
-}
-
-```
-Si ya corriste el script SQL con los datos mock, ya hay usuarios creados. En ese caso vamos a autenticarnos/logearnos: 
-Método: POST
-URL: {{base_url}}/auth/authenticate
-Headers: Content-Type: application/json
-Body → raw → JSON:
-```
-```
 ### Request
 
 ```json
@@ -931,8 +857,8 @@ Body → raw → JSON:
   "username": "lorena",
   "password": "1234"
 }
-
 ```
+
 ### Response OK
 
 ```json
@@ -940,58 +866,138 @@ Body → raw → JSON:
   "ok": true,
   "data": {
     "access_token": "eyJhbGciOiJIUzI1NiJ9...",
+    "user_id": 1,
     "username": "lorena",
     "email": "lorena@panstock.local",
-    "role": "OWNER"
+    "role": "OWNER",
+    "firstName": "Lorena",
+    "lastName": "..."
   }
 }
-
 ```
-```
-Configurar la autenticación en todos los requests siguientes
-En cada request que requiera autenticación:
 
-Ir a la pestaña Authorization
-Tipo: Bearer Token
-Token: {{access_token}}
-```
-### Validaciones relevantes
+Si las credenciales son incorrectas (o el usuario está deshabilitado) devuelve `401` con `"message": "Usuario o contraseña incorrecto."`. `username` y `password` son obligatorios.
 
-- `firstName` obligatorio.
-- `lastName` obligatorio.
-- `email` obligatorio y único.
-- `password` obligatorio al crear.
-- `role` obligatorio.
+En Postman, para los requests siguientes: pestaña **Authorization**, tipo **Bearer Token** y el valor de `access_token`.
+
+El script SQL mock crea los usuarios `lorena` y `gabriel` (`OWNER`) y `martina` (`EMPLOYEE`), todos con contraseña `1234`, solo para desarrollo.
 
 ---
 
-## 11.5. Actualizar usuario
+## 11.3. Crear empleado (solo OWNER)
 
 ```http
-PUT http://localhost:8081/users/update
-Authorization: Bearer <tu_token>
+POST /users
+Authorization: Bearer <token_de_un_owner>
 Content-Type: application/json
-
-El servidor va a ignorar role y username aunque los mandes. Solo va a actualizar lastName y email. Como password es null, la contraseña no cambia
-
 ```
+
+### Request
+
 ```json
 {
-  "username": "martina",
+  "username": "martina2",
   "firstName": "Martina",
-  "lastName": "González",
-  "email": "martina.nueva@panstock.local",
-  "password": null,
-  "role": "OWNER"
+  "lastName": "Gómez",
+  "email": "martina2@panstock.local",
+  "password": "Password123"
 }
 ```
 
-## 11.6. Deshabilitar usuario
+No se envía el rol: el usuario creado siempre es `EMPLOYEE` y queda habilitado.
 
-```http 
-PATCH http://localhost:8081/users/4/disable
-Authorization: Bearer <token_de_lorena>
+### Validaciones relevantes
+
+- `username` obligatorio, de 3 a 50 caracteres y único.
+- `firstName` y `lastName` obligatorios, de hasta 100 caracteres.
+- `email` obligatorio, con formato válido, de hasta 150 caracteres y único.
+- `password` obligatoria, de 8 a 72 caracteres.
+
+### Response `201 Created`
+
+```json
+{
+  "ok": true,
+  "data": {
+    "id": 5,
+    "username": "martina2",
+    "firstName": "Martina",
+    "lastName": "Gómez",
+    "email": "martina2@panstock.local",
+    "role": "EMPLOYEE"
+  }
+}
 ```
+
+Nunca se devuelve la contraseña. Errores: `400` si hay un dato inválido o el usuario o el email ya existen, y `403` si quien llama no es `OWNER`.
+
+---
+
+## 11.4. Listar usuarios (solo OWNER)
+
+```http
+GET /users
+```
+
+Parámetros opcionales: `page` y `size`. Si no se envían, devuelve todos los usuarios. La respuesta es una página de Spring (`content` con la lista) donde cada usuario incluye, entre otros datos, `id`, `username`, `firstName`, `lastName`, `email`, `role` y `enabled`. No se devuelve la contraseña.
+
+```http
+GET /users/{id}
+```
+
+Devuelve un usuario por ID (solo `OWNER`), o `204 No Content` si no existe.
+
+---
+
+## 11.5. Datos del usuario autenticado
+
+```http
+GET /users/data
+Authorization: Bearer <token>
+```
+
+Devuelve `id`, `username`, `firstName`, `lastName`, `email` y `role` del usuario del token, dentro de `{ "ok": true, "data": { ... } }`.
+
+---
+
+## 11.6. Actualizar el propio usuario
+
+```http
+PUT /users/update
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+Cualquier usuario autenticado puede actualizarse a sí mismo. Todos los campos son opcionales: solo se modifican los que vienen informados. El servidor **ignora** `username` y `role` aunque se envíen.
+
+```json
+{
+  "firstName": "Martina",
+  "lastName": "González",
+  "email": "martina.nueva@panstock.local",
+  "password": null
+}
+```
+
+- `email`: con formato válido y no usado por otro usuario.
+- `password`: de 8 a 72 caracteres. Si es `null` o vacía, la contraseña no cambia.
+
+---
+
+## 11.7. Deshabilitar y habilitar empleados (solo OWNER)
+
+```http
+PATCH /users/{id}/disable
+PATCH /users/{id}/enable
+Authorization: Bearer <token_de_un_owner>
+```
+
+Ambos devuelven `204 No Content` si salieron bien. Reglas:
+
+- Solo funcionan sobre usuarios `EMPLOYEE`: a un `OWNER` no se lo puede deshabilitar (ni a uno mismo).
+- Deshabilitar a quien ya está deshabilitado (o habilitar a quien ya está habilitado) devuelve `400`.
+- Un empleado deshabilitado no puede iniciar sesión y, si ya tenía sesión abierta, sus próximos requests reciben `401`.
+
 ---
 
 # 12. Stock
@@ -2364,11 +2370,14 @@ DELETE /api/suppliers/{id}
 ## Usuarios
 
 ```http
-GET    /api/users
-GET    /api/users/{id}
-POST   /api/users
-PUT    /api/users/{id}
-DELETE /api/users/{id}
+POST  /auth/authenticate        (público)
+GET   /users                    (OWNER)
+POST  /users                    (OWNER, crea un EMPLOYEE)
+GET   /users/{id}               (OWNER)
+PATCH /users/{id}/disable       (OWNER)
+PATCH /users/{id}/enable        (OWNER)
+GET   /users/data               (autenticado)
+PUT   /users/update             (autenticado)
 ```
 
 ## Stock

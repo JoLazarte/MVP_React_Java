@@ -101,6 +101,9 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/promotions/suggestions").hasRole(Role.OWNER.name())
                     .requestMatchers(HttpMethod.GET, "/api/promotions").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/promotions/active").authenticated()
+                    // Crear y cancelar promociones: solo OWNER (antes caía en anyRequest().authenticated())
+                    .requestMatchers(HttpMethod.POST,  "/api/promotions").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.PATCH, "/api/promotions/**").hasRole(Role.OWNER.name())
 
                     // ── Reports: OWNER only ───────────────────────────────────────────
                     .requestMatchers("/api/reports/**").hasRole(Role.OWNER.name())

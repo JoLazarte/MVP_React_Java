@@ -2,6 +2,8 @@
 
 Sistema web para controlar el **stock y los vencimientos** de una franquicia de panaderías (Nombre de la franquicia). Registra cada ingreso por lote, descuenta las ventas con criterio **FEFO** (primero vence, primero sale) y avisa qué productos están por vencer para venderlos con promoción o descartarlos a tiempo.
 
+**Documentación:** [API](Back/PanStock_API_Documentacion_para_Frontend.md) · [Frontend](Front/panstock-client/Panstock_client.md)
+
 <!-- link a la demo online publicada. -->
 <!-- Agregá 2 o 3 capturas en docs/ (dashboard, vencimientos, promociones) y mostralas así: ![Dashboard](docs/dashboard.png) -->
 
@@ -21,8 +23,6 @@ En una panadería, buena parte de la mercadería tiene fecha de vencimiento cort
 - **Notificaciones** del navegador para avisar de vencimientos próximos.
 - **Catálogo:** productos, categorías y proveedores, con baja lógica.
 - **Gestión de empleados:** no hay registro abierto. El dueño crea las cuentas de sus empleados, les pasa el usuario y la contraseña inicial, y puede deshabilitarlos o volver a habilitarlos.
-
-La API además expone ajustes manuales de stock, historial de movimientos, alertas y configuración, que todavía no tienen pantalla en el frontend.
 
 ## Roles
 
@@ -70,10 +70,10 @@ MVP_React_Java/
 │   │   └── src/main/
 │   │       ├── java/com/panstock/api/ # controller, service, repository, entity, dto, mapper, exception
 │   │       └── resources/             # application.properties y application-prod.properties
-│   └── PanStock_API_Documentacion_para_armar_Frontend.md   # documentación de la API
+│   └── PanStock_API_Documentacion_para_Frontend.md   # documentación de la API
 └── Front/
-    ├── Front.md                       # documentación del frontend
     └── panstock-client/               # SPA (React + Vite)
+        └── Panstock_client.md         # documentación del frontend
 ```
 
 ## Cómo correrlo en local
@@ -156,7 +156,7 @@ Para el frontend, copiá `.env.prod.example` como `.env.production` y poné la U
 - [ ] Tests de la lógica de ventas con FEFO (venta en un lote, reparto entre lotes, stock insuficiente, lote vencido).
 - [ ] Bloqueo de concurrencia al registrar ventas, para evitar vender de más.
 - [ ] Generación programada de alertas (`@Scheduled`) en lugar de disparo manual.
-- [ ] Pantallas para ajustes de stock, historial de movimientos y configuración.
+- [ ] Pantallas para ajustes de stock, historial de movimientos, alertas y configuración (detalle en [`Panstock_client.md`](Front/panstock-client/Panstock_client.md)).
 - [ ] Pantalla de perfil para que cada usuario cambie su contraseña.
 - [ ] Integración continua con GitHub Actions y una base de datos de prueba para los tests de contexto.
 - [ ] Dividir las páginas más grandes del frontend en componentes.

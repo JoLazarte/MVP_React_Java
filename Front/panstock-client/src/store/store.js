@@ -18,6 +18,7 @@ import promotionsReducer            from '../features/promotions/promotionsSlice
 import autoWasteNotificationReducer from '../features/waste/autoWasteNotificationSlice';
 import reportsReducer               from '../features/reports/reportsSlice';
 import usersReducer                 from '../features/users/usersSlice';
+import movementsReducer             from '../features/movements/movementsSlice';
 
 const authPersistConfig = {
   key: 'panstock-auth', storage,
@@ -86,6 +87,7 @@ const appReducer = combineReducers({
   autoWasteNotification: persistReducer(autoWasteNotificationPersistConfig, autoWasteNotificationReducer),
   reports:               persistReducer(reportsPersistConfig,               reportsReducer),
   users:                 usersReducer,
+  movements:             movementsReducer,
 });
 
 const rootReducer = (state, action) => {

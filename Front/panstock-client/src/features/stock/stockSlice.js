@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { stockService } from '../../services/stockService';
 
 //const BASE_URL = import.meta.env.VITE_API_URL;
 const BASE_URL = import.meta.env.MODE === 'development' 
@@ -92,6 +93,22 @@ export const registerSale = createAsyncThunk(
   }
 );
 
+/**
+ * POST /api/stock/adjustments
+ * Accessible by OWNER and EMPLOYEE
+ * Body: { batchId, adjustmentType: 'IN' | 'OUT', quantity, notes }
+ */
+export const registerAdjustment = createAsyncThunk(
+  'stock/registerAdjustment',
+  async ({ token, data }, { rejectWithValue }) => {
+    try {
+      return await stockService.registerAdjustment(token, data);
+    } catch (e) {
+      return rejectWithValue(e.message);
+    }
+  }
+);
+
 // ─── Slice ────────────────────────────────────────────────────────────────────
 
 const stockSlice = createSlice({
@@ -111,6 +128,9 @@ const stockSlice = createSlice({
     saleStatus: 'idle',
     saleError: null,
     lastSaleResult: null,
+    // Adjustment action state
+    adjustStatus: 'idle',
+    adjustError: null,
   },
   reducers: {
     clearEntryState(state) {
@@ -122,6 +142,10 @@ const stockSlice = createSlice({
       state.saleStatus = 'idle';
       state.saleError = null;
       state.lastSaleResult = null;
+    },
+    clearAdjustState(state) {
+      state.adjustStatus = 'idle';
+      state.adjustError = null;
     },
   },
   extraReducers: (builder) => {
@@ -157,10 +181,16 @@ const stockSlice = createSlice({
         s.lastSaleResult = a.payload;
       })
       .addCase(registerSale.rejected,  (s, a) => { s.saleStatus = 'failed'; s.saleError = a.payload; });
+
+    // ── registerAdjustment ──
+    builder
+      .addCase(registerAdjustment.pending,   (s) => { s.adjustStatus = 'loading'; s.adjustError = null; })
+      .addCase(registerAdjustment.fulfilled, (s) => { s.adjustStatus = 'succeeded'; })
+      .addCase(registerAdjustment.rejected,  (s, a) => { s.adjustStatus = 'failed'; s.adjustError = a.payload; });
   },
 });
 
-export const { clearEntryState, clearSaleState } = stockSlice.actions;
+export const { clearEntryState, clearSaleState, clearAdjustState } = stockSlice.actions;
 
 // ─── Selectors ────────────────────────────────────────────────────────────────
 
@@ -177,6 +207,10 @@ export const selectSaleAction         = (s) => ({
   status:     s.stock.saleStatus,
   error:      s.stock.saleError,
   lastResult: s.stock.lastSaleResult,
+});
+export const selectAdjustAction       = (s) => ({
+  status: s.stock.adjustStatus,
+  error:  s.stock.adjustError,
 });
 
 export default stockSlice.reducer;

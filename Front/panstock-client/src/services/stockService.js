@@ -68,4 +68,32 @@ export const stockService = {
     fetch(`${BASE_URL}/api/stock/batches/${id}`, {
       headers: authHeaders(token),
     }).then(handleResponse),
+
+  /**
+   * POST /api/stock/adjustments
+   * Body: { batchId, adjustmentType: 'IN' | 'OUT', quantity, notes }
+   * El usuario se toma del token. Returns StockOperationResponse.
+   */
+  registerAdjustment: (token, data) =>
+    fetch(`${BASE_URL}/api/stock/adjustments`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
+  /**
+   * GET /api/stock/movements?productId&batchId&movementType&from&to
+   * Todos los filtros son opcionales (los vacíos no se envían).
+   * Returns StockMovementHistoryResponse[] — del más reciente al más antiguo, sin paginar.
+   */
+  getMovements: (token, filters = {}) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== '' && value != null) params.set(key, value);
+    });
+    const qs = params.toString();
+    return fetch(`${BASE_URL}/api/stock/movements${qs ? `?${qs}` : ''}`, {
+      headers: authHeaders(token),
+    }).then(handleResponse);
+  },
 };

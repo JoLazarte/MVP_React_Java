@@ -15,6 +15,8 @@ En una panadería, buena parte de la mercadería tiene fecha de vencimiento cort
 
 - **Stock por lotes:** cada ingreso crea un lote con fecha de vencimiento, costo, precio y proveedor.
 - **Ventas con FEFO:** la venta descuenta de los lotes que vencen antes, puede repartirse entre varios lotes y deja un movimiento por cada uno. Los lotes vencidos no se venden.
+- **Ajustes de stock:** corrección de diferencias de recuento en un lote, con motivo obligatorio y registro de quién lo hizo.
+- **Historial de movimientos:** cada ingreso, venta, merma y ajuste queda registrado, con filtros por tipo, producto, lote y fechas.
 - **Vencimientos:** tablero con semáforo (vigente, por vencer, vencido) y alertas configurables.
 - **Mermas:** registro de descartes con motivo. Cuando el sistema descarta lotes vencidos, un aviso pide confirmar el descarte físico.
 - **Promociones:** para productos por vencer, el sistema sugiere un descuento según los días que faltan (20% si vence hoy o mañana, 10% si faltan más). El dueño las aprueba, las crea a mano o las cancela.
@@ -30,6 +32,7 @@ En una panadería, buena parte de la mercadería tiene fecha de vencimiento cort
 |---|---|---|
 | Ver dashboard, stock, lotes, vencimientos y mermas | ✅ | ✅ |
 | Registrar ventas, ingresos de mercadería y mermas | ✅ | ✅ |
+| Ajustar el stock de un lote y ver el historial de movimientos | ✅ | ✅ |
 | Ver promociones activas | ✅ | ✅ |
 | Crear, editar y desactivar productos, categorías y proveedores | ✅ | ❌ |
 | Sugerencias y creación de promociones, cancelarlas | ✅ | ❌ |
@@ -156,7 +159,7 @@ Para el frontend, copiá `.env.prod.example` como `.env.production` y poné la U
 - [ ] Tests de la lógica de ventas con FEFO (venta en un lote, reparto entre lotes, stock insuficiente, lote vencido).
 - [ ] Bloqueo de concurrencia al registrar ventas, para evitar vender de más.
 - [ ] Generación programada de alertas (`@Scheduled`) en lugar de disparo manual.
-- [ ] Pantallas para ajustes de stock, historial de movimientos, alertas y configuración (detalle en [`Panstock_client.md`](Front/panstock-client/Panstock_client.md)).
+- [ ] Pantallas para alertas y configuración del sistema (detalle en [`Panstock_client.md`](Front/panstock-client/Panstock_client.md)).
 - [ ] Pantalla de perfil para que cada usuario cambie su contraseña.
 - [ ] Integración continua con GitHub Actions y una base de datos de prueba para los tests de contexto.
 - [ ] Dividir las páginas más grandes del frontend en componentes.

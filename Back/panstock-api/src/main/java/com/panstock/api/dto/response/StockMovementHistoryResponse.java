@@ -9,6 +9,7 @@ public record StockMovementHistoryResponse(
         String productName,
         Long batchId,
         Long userId,
+        String userName,
         StockMovementType movementType,
         BigDecimal quantity,
         BigDecimal unitSalePrice,

@@ -55,13 +55,14 @@ src/
 │   ├── catalog/                  # CategoryForm, ProductForm
 │   ├── layout/AppTopbar.jsx      # Barra de navegación superior
 │   ├── notifications/            # NotificationBell, NotificationSettingsModal
-│   ├── stock/                    # StockEntryForm (ingreso), StockSaleForm (venta)
+│   ├── stock/                    # StockEntryForm (ingreso), StockSaleForm (venta), StockAdjustmentForm (ajuste)
 │   ├── ui/                       # CatalogUI (Modal, ConfirmDialog, badges), FormField (Input, Button, Alert)
 │   ├── users/EmployeeForm.jsx    # Alta de empleados (solo dueño)
 │   └── waste/WasteForm.jsx       # Registro de mermas
 ├── features/                     # Un slice de Redux por dominio
 │   ├── auth/                     # Login, logout, perfil
 │   ├── catalog/                  # categoriesSlice, productsSlice, suppliersSlice
+│   ├── movements/                # movementsSlice (historial de movimientos)
 │   ├── notifications/            # notificationsSlice + hook useNotifications
 │   ├── promotions/               # promotionsSlice
 │   ├── reports/                  # reportsSlice
@@ -70,6 +71,7 @@ src/
 │   └── waste/                    # wasteSlice, autoWasteNotificationSlice
 ├── pages/                        # Una página por ruta
 ├── services/                     # authService, catalogService, stockService, userService
+├── utils/format.js               # Formato de números, moneda y fechas (es-AR)
 ├── store/store.js                # Configuración de Redux + persistencia
 ├── App.jsx                       # Rutas principales
 ├── main.jsx                      # Punto de entrada
@@ -84,6 +86,7 @@ El service worker de las notificaciones está en `public/sw.js`.
 | `/login` | LoginPage | Público |
 | `/dashboard` | DashboardPage | Autenticado |
 | `/stock` | StockPage | Autenticado |
+| `/movements` | MovementsPage | Autenticado (se llega desde Stock) |
 | `/waste` | WastePage | Autenticado |
 | `/expiration` | ExpirationPage | Autenticado |
 | `/promotions` | PromotionsPage | Autenticado (el dueño ve más pestañas) |
@@ -104,6 +107,7 @@ El frontend respeta el rol devuelto por el backend al iniciar sesión y oculta l
 |---|---|---|
 | Ver dashboard, stock, lotes, vencimientos y mermas | ✅ | ✅ |
 | Registrar ingreso de mercadería, venta manual y mermas | ✅ | ✅ |
+| Ajustar el stock de un lote y ver el historial de movimientos | ✅ | ✅ |
 | Ver promociones activas | ✅ | ✅ |
 | Ver productos, categorías y proveedores | ✅ | ✅ |
 | Crear, editar y desactivar productos, categorías y proveedores | ✅ | ❌ |
@@ -146,12 +150,16 @@ Inicio de sesión con usuario y contraseña, y validación en el cliente antes d
 Saludo con el rol del usuario, semáforo de vencimientos con contadores y accesos directos a los módulos.
 
 ### Stock (`/stock`)
-Accesible para ambos roles. Dos acciones principales:
+Accesible para ambos roles. Acciones principales:
 
 - **Registrar ingreso** (`POST /api/stock/entries`): selector de producto activo, proveedor por defecto del producto, fecha de ingreso y de vencimiento (obligatoria si el producto es perecedero), cantidad, almacenamiento y observaciones. Los precios son opcionales; si no se envían, usa los del producto.
 - **Registrar venta** (`POST /api/stock/sales`): el backend aplica FEFO (descuenta primero del lote más próximo a vencer). No se venden lotes vencidos ni productos inactivos. Al terminar muestra qué lotes se descontaron y en qué cantidad.
+- **Ajustar stock** (`POST /api/stock/adjustments`): desde el detalle de un lote (vista de lotes). Corrige la diferencia entre el stock del sistema y el recuento físico: suma o resta unidades de ese lote y exige un motivo. No se ajustan lotes vencidos (se descartan desde Mermas) ni descartados. Para una venta se usa la venta, para una pérdida Mermas y para mercadería nueva el ingreso.
 
-Incluye vista de resumen y vista de lotes, con filtros por estado y búsqueda por nombre.
+Incluye vista de resumen y vista de lotes, con filtros por estado y búsqueda por nombre. Cada lote tiene el atajo **Ver movimientos**, y el botón **Historial de movimientos** abre `/movements`.
+
+### Historial de movimientos (`/movements`)
+Accesible para ambos roles, desde Stock (no tiene lugar propio en la barra superior). Lista cada ingreso, venta, merma y ajuste (`GET /api/stock/movements`), del más reciente al más antiguo, con tipo, producto, lote, cantidad, fecha y quién lo hizo (un movimiento sin usuario es del sistema, por ejemplo un descarte automático). Los filtros (tipo, producto, fechas y lote) se aplican en el servidor; por defecto muestra los últimos 30 días, y si se llega desde un lote muestra todo su historial. Se cargan 50 movimientos por vez. El detalle de una merma (motivo y costo) sigue estando en Mermas.
 
 ### Mermas (`/waste`)
 Listado con filtros y formulario de registro con motivo. Cuando el sistema descarta lotes vencidos automáticamente, `AutoWasteModal` aparece en cualquier pantalla y pide confirmar que el descarte físico se hizo.
@@ -192,8 +200,6 @@ En los tres, el dueño crea, edita y desactiva (baja lógica) y el empleado solo
 
 La API ya lo expone, pero todavía no hay pantalla:
 
-- Ajustes de stock (`POST /api/stock/adjustments`).
-- Historial de movimientos (`GET /api/stock/movements`).
 - Alertas (`/api/alerts`) y configuración del sistema (`/api/settings`).
 
 Otras mejoras previstas: pantalla de perfil para que cada usuario cambie su contraseña y tests del frontend.

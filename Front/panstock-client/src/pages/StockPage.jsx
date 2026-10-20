@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   fetchStockSummary,
   fetchBatches,
@@ -11,6 +12,7 @@ import {
 import { selectToken } from '../features/auth/authSlice';
 import { Modal, TableSkeleton } from '../components/ui/CatalogUI';
 import StockEntryForm from '../components/stock/StockEntryForm';
+import StockAdjustmentForm from '../components/stock/StockAdjustmentForm';
 import AppTopbar from '../components/layout/AppTopbar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -131,7 +133,16 @@ function StockCard({ item }) {
 }
 
 // ─── Batch row ────────────────────────────────────────────────────────────────
-function BatchRow({ batch }) {
+/** Motivo por el que un lote no admite ajustes (null si se puede ajustar). */
+function adjustBlockedReason(batch) {
+  if (batch.batchStatus === 'DISCARDED')   return 'Lote descartado: no admite ajustes.';
+  if (batch.expirationStatus === 'EXPIRED') return 'Lote vencido: se descarta desde Mermas.';
+  return null;
+}
+
+function BatchRow({ batch, onAdjust, onHistory }) {
+  const blockedReason = adjustBlockedReason(batch);
+
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -194,6 +205,18 @@ function BatchRow({ batch }) {
           {batch.notes && (
             <p className="bd-notes">📝 {batch.notes}</p>
           )}
+          <div className="bd-actions">
+            {blockedReason ? (
+              <span className="bd-hint">{blockedReason}</span>
+            ) : (
+              <button type="button" className="bd-btn" onClick={() => onAdjust(batch)}>
+                ⚖️ Ajustar stock
+              </button>
+            )}
+            <button type="button" className="bd-btn ghost" onClick={() => onHistory(batch)}>
+              📜 Ver movimientos
+            </button>
+          </div>
         </div>
       )}
 
@@ -236,6 +259,17 @@ function BatchRow({ batch }) {
         }
         .bd-mono  { font-family: monospace; font-size: 0.82rem; color: var(--warm-gray); }
         .bd-notes { font-size: 0.8rem; color: var(--warm-gray); margin-top: 10px; line-height: 1.5; }
+        .bd-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+        .bd-btn {
+          padding: 7px 14px; border-radius: var(--radius-md); cursor: pointer;
+          border: 1.5px solid var(--amber); background: rgba(200,137,58,0.10);
+          font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; color: var(--espresso);
+          transition: all var(--transition-fast);
+        }
+        .bd-btn:hover { background: rgba(200,137,58,0.20); }
+        .bd-btn.ghost { border-color: var(--cream-dark); background: white; color: var(--warm-gray); }
+        .bd-btn.ghost:hover { border-color: var(--warm-gray); color: var(--espresso); }
+        .bd-hint { font-size: 0.78rem; color: var(--warm-gray); font-style: italic; }
       `}</style>
     </div>
   );
@@ -244,6 +278,7 @@ function BatchRow({ batch }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function StockPage() {
   const dispatch      = useDispatch();
+  const navigate      = useNavigate();
   const token         = useSelector(selectToken);
   const summary       = useSelector(selectStockSummary);
   const summaryStatus = useSelector(selectStockSummaryStatus);
@@ -251,6 +286,7 @@ export default function StockPage() {
   const batchesStatus = useSelector(selectBatchesStatus);
 
   const [modalOpen,   setModalOpen]   = useState(false);
+  const [adjustTarget, setAdjustTarget] = useState(null); // lote a ajustar
   const [view,        setView]        = useState('summary');
   const [search,      setSearch]      = useState('');
   const [statusFilter,setStatusFilter]= useState('AVAILABLE');
@@ -304,6 +340,11 @@ export default function StockPage() {
     refresh();
   };
 
+  const handleAdjustSuccess = () => {
+    setAdjustTarget(null);
+    refresh();
+  };
+
   return (
     <div className="stock-page">
       <AppTopbar />
@@ -343,6 +384,14 @@ export default function StockPage() {
             <span className="sab-title">Registrar ingreso</span>
             <span className="sab-sub">Agregar stock / nuevo lote</span>
           </div>
+        </button>
+
+        <button type="button" className="stock-history-btn" onClick={() => navigate('/movements')}>
+          <span>📜</span>
+          <span>
+            <strong>Historial de movimientos</strong>
+            <small>Ingresos, ventas, mermas y ajustes</small>
+          </span>
         </button>
 
         {/* ── Stats strip ── */}
@@ -461,7 +510,11 @@ export default function StockPage() {
               <div className="stock-batches-list">
                 {filteredBatches.map((batch, i) => (
                   <div key={batch.id} style={{ animationDelay: `${i * 0.03}s` }}>
-                    <BatchRow batch={batch} />
+                    <BatchRow
+                      batch={batch}
+                      onAdjust={setAdjustTarget}
+                      onHistory={(b) => navigate(`/movements?batchId=${b.id}`)}
+                    />
                   </div>
                 ))}
               </div>
@@ -486,8 +539,34 @@ export default function StockPage() {
         />
       </Modal>
 
+      {/* ── Modal: Ajuste de stock de un lote ── */}
+      <Modal
+        isOpen={Boolean(adjustTarget)}
+        onClose={() => setAdjustTarget(null)}
+        title="Ajustar stock del lote"
+        width="520px"
+      >
+        {adjustTarget && (
+          <StockAdjustmentForm
+            batch={adjustTarget}
+            onSuccess={handleAdjustSuccess}
+            onCancel={() => setAdjustTarget(null)}
+          />
+        )}
+      </Modal>
+
       <style>{`
         .stock-page    { min-height: 100vh; background: var(--cream); }
+        .stock-history-btn {
+          display: flex; align-items: center; gap: 10px; text-align: left;
+          padding: 12px 16px; cursor: pointer; background: white;
+          border: 1.5px solid var(--cream-dark); border-radius: var(--radius-md);
+          font-family: var(--font-body); color: var(--espresso); font-size: 1.2rem;
+          transition: all var(--transition-fast);
+        }
+        .stock-history-btn:hover { border-color: var(--amber); box-shadow: var(--shadow-sm); }
+        .stock-history-btn strong { display: block; font-size: 0.92rem; }
+        .stock-history-btn small  { display: block; font-size: 0.74rem; color: var(--warm-gray); }
         .stock-content {
           max-width: 960px; margin: 0 auto;
           padding: var(--space-lg) var(--space-md);

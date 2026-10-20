@@ -14,6 +14,7 @@ import ProductsPage    from './pages/ProductsPage';
 import CategoriesPage  from './pages/CategoriesPage';
 import SuppliersPage   from './pages/SuppliersPage';
 import StockPage       from './pages/StockPage';
+import MovementsPage   from './pages/MovementsPage';
 import WastePage       from './pages/WastePage';
 import Restockpage     from './pages/RestockPage';
 import PromotionsPage  from './pages/PromotionsPage';
@@ -135,6 +136,7 @@ export default function App() {
         {/* ── Rutas protegidas — ambos roles (OWNER y EMPLOYEE) ──────────── */}
         <Route path="/dashboard"   element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path="/stock"       element={<ProtectedRoute><StockPage /></ProtectedRoute>} />
+        <Route path="/movements"   element={<ProtectedRoute><MovementsPage /></ProtectedRoute>} />
         <Route path="/waste"       element={<ProtectedRoute><WastePage /></ProtectedRoute>} />
         <Route path="/expiration"  element={<ProtectedRoute><ExpirationPage /></ProtectedRoute>} />
         <Route path="/products"    element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />

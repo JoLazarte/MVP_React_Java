@@ -1196,7 +1196,6 @@ POST /api/stock/sales
 ```json
 {
   "productId": 1,
-  "userId": 2,
   "quantity": 5,
   "notes": "Venta manual desde frontend"
 }
@@ -1249,6 +1248,15 @@ Ejemplos:
 - sobran 3 unidades por corrección;
 - se detectó error de carga.
 
+**No reemplazan a otras operaciones:**
+
+| Situación | Operación correcta |
+|---|---|
+| Llegó mercadería nueva | Ingreso (`POST /api/stock/entries`): crea un lote nuevo |
+| Se vendió un producto | Venta (`POST /api/stock/sales`): descuenta por FEFO y registra el precio |
+| Se perdió mercadería (vencida, dañada, etc.) | Merma (`POST /api/waste-records`): registra motivo y costo |
+| El recuento físico no coincide con el sistema | **Ajuste** (`POST /api/stock/adjustments`): corrige la cantidad de un lote |
+
 ---
 
 ## 14.2. Registrar ajuste
@@ -1262,7 +1270,6 @@ POST /api/stock/adjustments
 ```json
 {
   "batchId": 1,
-  "userId": 2,
   "adjustmentType": "IN",
   "quantity": 3,
   "notes": "Corrección por recuento físico"
@@ -1274,7 +1281,6 @@ POST /api/stock/adjustments
 ```json
 {
   "batchId": 1,
-  "userId": 2,
   "adjustmentType": "OUT",
   "quantity": 2,
   "notes": "Diferencia detectada en recuento físico"
@@ -1288,6 +1294,8 @@ POST /api/stock/adjustments
 - `quantity` mayor a cero.
 - `OUT` no puede dejar stock negativo.
 - No se puede ajustar un lote descartado.
+- El usuario que registra el ajuste se toma del token: no se envía en el body.
+- El campo `notes` es opcional para la API, pero el frontend exige un motivo.
 
 ### Response
 
@@ -1345,6 +1353,8 @@ GET /api/stock/movements
 | `from` | LocalDate | `2026-05-01` |
 | `to` | LocalDate | `2026-05-31` |
 
+La respuesta viene ordenada del más reciente al más antiguo y **no está paginada**: conviene enviar siempre `from` y `to`. Un movimiento sin usuario (`userId` y `userName` en `null`) lo generó el sistema.
+
 Ejemplos:
 
 ```http
@@ -1369,8 +1379,10 @@ GET /api/stock/movements?from=2026-05-01&to=2026-05-31
     "productName": "Medialunas manteca",
     "batchId": 1,
     "userId": 2,
+    "userName": "Encargado Demo",
     "movementType": "ENTRY",
     "quantity": 30.000,
+    "unitSalePrice": null,
     "movementDate": "2026-05-08T10:00:00",
     "relatedWasteRecordId": null,
     "notes": "Ingreso de mercadería"
@@ -1452,7 +1464,6 @@ POST /api/waste-records
 ```json
 {
   "batchId": 1,
-  "userId": 2,
   "quantity": 2,
   "reason": "EXPIRED",
   "notes": "Merma detectada en control diario"
@@ -1465,6 +1476,8 @@ POST /api/waste-records
 - `quantity` mayor a cero.
 - La cantidad no puede superar el stock disponible del lote.
 - No se puede registrar merma sobre lote agotado o descartado.
+- El usuario que registra la merma se toma del token: no se envía en el body.
+- `automatic` (opcional, `false` por defecto): el frontend lo envía en `true` al descartar un lote ya vencido de forma automática; en ese caso la merma queda sin usuario. Solo se acepta con `reason` `EXPIRED`.
 
 ### Efecto en backend
 
@@ -1583,7 +1596,6 @@ POST /api/promotions
 {
   "productId": 1,
   "batchId": 1,
-  "createdById": 2,
   "title": "Promo medialunas",
   "description": "Promoción para vender stock próximo a vencer.",
   "discountType": "PERCENTAGE",
@@ -1601,7 +1613,6 @@ POST /api/promotions
 {
   "productId": 5,
   "batchId": 4,
-  "createdById": 2,
   "title": "Promo prepizzas",
   "description": "Precio promocional para stock próximo a vencer.",
   "discountType": "FIXED_PRICE",

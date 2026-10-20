@@ -47,6 +47,7 @@ public class StockMovementMapper {
                 product != null ? product.getName() : null,
                 batch != null ? batch.getId() : null,
                 user != null ? user.getId() : null,
+                displayName(user),
                 movement.getMovementType(),
                 movement.getQuantity(),
                 movement.getUnitSalePrice(),
@@ -54,5 +55,16 @@ public class StockMovementMapper {
                 movement.getRelatedWasteRecordId(),
                 movement.getNotes()
         );
+    }
+
+    /** Nombre y apellido; si no hay, el usuario. Null cuando el movimiento lo generó el sistema. */
+    private static String displayName(User user) {
+        if (user == null) {
+            return null;
+        }
+        String first = user.getFirstName() != null ? user.getFirstName().trim() : "";
+        String last = user.getLastName() != null ? user.getLastName().trim() : "";
+        String fullName = (first + " " + last).trim();
+        return fullName.isEmpty() ? user.getUsername() : fullName;
     }
 }

@@ -1,0 +1,39 @@
+package com.smartcrumbs.api.service.impl;
+
+import com.smartcrumbs.api.dto.response.DashboardSemaphoreResponse;
+import com.smartcrumbs.api.dto.response.ExpirationItemResponse;
+import com.smartcrumbs.api.enums.ExpirationStatus;
+import com.smartcrumbs.api.service.DashboardService;
+import com.smartcrumbs.api.service.StockService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class DashboardServiceImpl implements DashboardService {
+
+    private final StockService stockService;
+
+   
+    @Override
+    public DashboardSemaphoreResponse getExpirationSemaphore() {
+        List<ExpirationItemResponse> expiring = stockService.getExpiring(null);
+        List<ExpirationItemResponse> expired  = stockService.getExpired();
+
+        List<ExpirationItemResponse> items = new ArrayList<>();
+        items.addAll(expired);
+        items.addAll(expiring);
+
+        long greenCount   = items.stream().filter(i -> i.status() == ExpirationStatus.GREEN).count();
+        long yellowCount  = items.stream().filter(i -> i.status() == ExpirationStatus.YELLOW).count();
+        long redCount     = items.stream().filter(i -> i.status() == ExpirationStatus.RED).count();
+        long expiredCount = items.stream().filter(i -> i.status() == ExpirationStatus.EXPIRED).count();
+
+        return new DashboardSemaphoreResponse(greenCount, yellowCount, redCount, expiredCount, items);
+    }
+}

@@ -1,15 +1,15 @@
-# PanStock 🥖
+# SmartCrumbs 🍞🕊️
 
 Sistema web para controlar el **stock y los vencimientos** de una franquicia de panaderías (Nombre de la franquicia). Registra cada ingreso por lote, descuenta las ventas con criterio **FEFO** (primero vence, primero sale) y avisa qué productos están por vencer para venderlos con promoción o descartarlos a tiempo.
 
-**Documentación:** [API](Back/PanStock_API_Documentacion_para_Frontend.md) · [Frontend](Front/panstock-client/Panstock_client.md)
+**Documentación:** [API](Back/SmartCrumbs_API_Documentacion_para_Frontend.md) · [Frontend](Front/smartcrumbs-client/SmartCrumbs_client.md)
 
 <!-- link a la demo online publicada. -->
 <!-- Agregá 2 o 3 capturas en docs/ (dashboard, vencimientos, promociones) y mostralas así: ![Dashboard](docs/dashboard.png) -->
 
 ## ¿Qué problema resuelve?
 
-En una panadería, buena parte de la mercadería tiene fecha de vencimiento corta. Llevar ese control en papel o en planillas genera mermas que se detectan tarde. PanStock centraliza el inventario por lote y muestra, con un semáforo, qué hay que vender, rematar o descartar primero.
+En una panadería, buena parte de la mercadería tiene fecha de vencimiento corta. Llevar ese control en papel o en planillas genera mermas que se detectan tarde. SmartCrumbs centraliza el inventario por lote y muestra, con un semáforo, qué hay que vender, rematar o descartar primero.
 
 ## Funcionalidades
 
@@ -19,10 +19,11 @@ En una panadería, buena parte de la mercadería tiene fecha de vencimiento cort
 - **Historial de movimientos:** cada ingreso, venta, merma y ajuste queda registrado, con filtros por tipo, producto, lote y fechas.
 - **Vencimientos:** tablero con semáforo (vigente, por vencer, vencido) y alertas configurables.
 - **Mermas:** registro de descartes con motivo. Cuando el sistema descarta lotes vencidos, un aviso pide confirmar el descarte físico.
-- **Promociones:** para productos por vencer, el sistema sugiere un descuento según los días que faltan (20% si vence hoy o mañana, 10% si faltan más). El dueño las aprueba, las crea a mano o las cancela.
+- **Promociones:** para productos por vencer, el sistema sugiere un descuento: 20% si el lote vence hoy y 10% si faltan de 1 a N días (N lo configura el dueño). El dueño las aprueba, las crea a mano o las cancela.
 - **Reposición sugerida** según ventas y stock (solo dueño).
 - **Reportes** (solo dueño): ventas por producto y categoría, saldo de stock, mermas por categoría y por proveedor.
-- **Notificaciones** del navegador para avisar de vencimientos próximos.
+- **Alertas y notificaciones:** el sistema genera solo las alertas de vencimiento y de stock bajo (y las cierra cuando el problema se arregla), y avisa con notificaciones del navegador los lotes que el semáforo marca en amarillo o rojo.
+- **Configuración** (solo dueño): días de aviso de vencimiento y días para sugerir promociones.
 - **Catálogo:** productos, categorías y proveedores, con baja lógica.
 - **Gestión de empleados:** no hay registro abierto. El dueño crea las cuentas de sus empleados, les pasa el usuario y la contraseña inicial, y puede deshabilitarlos o volver a habilitarlos.
 
@@ -33,6 +34,8 @@ En una panadería, buena parte de la mercadería tiene fecha de vencimiento cort
 | Ver dashboard, stock, lotes, vencimientos y mermas | ✅ | ✅ |
 | Registrar ventas, ingresos de mercadería y mermas | ✅ | ✅ |
 | Ajustar el stock de un lote y ver el historial de movimientos | ✅ | ✅ |
+| Ver alertas y resolverlas | ✅ | ✅ |
+| Configurar los días de aviso de vencimiento y de sugerencia de promoción | ✅ | ❌ |
 | Ver promociones activas | ✅ | ✅ |
 | Crear, editar y desactivar productos, categorías y proveedores | ✅ | ❌ |
 | Sugerencias y creación de promociones, cancelarlas | ✅ | ❌ |
@@ -68,15 +71,15 @@ Los permisos se validan en el backend; el frontend además oculta lo que cada ro
 ```
 MVP_React_Java/
 ├── Back/
-│   ├── panstock-api/                  # API REST (Spring Boot)
+│   ├── smartcrumbs-api/                  # API REST (Spring Boot)
 │   │   ├── database/                  # script SQL: estructura y datos de ejemplo
 │   │   └── src/main/
-│   │       ├── java/com/panstock/api/ # controller, service, repository, entity, dto, mapper, exception
+│   │       ├── java/com/smartcrumbs/api/ # controller, service, repository, entity, dto, mapper, exception
 │   │       └── resources/             # application.properties y application-prod.properties
-│   └── PanStock_API_Documentacion_para_Frontend.md   # documentación de la API
+│   └── SmartCrumbs_API_Documentacion_para_Frontend.md   # documentación de la API
 └── Front/
-    └── panstock-client/               # SPA (React + Vite)
-        └── Panstock_client.md         # documentación del frontend
+    └── smartcrumbs-client/               # SPA (React + Vite)
+        └── SmartCrumbs_client.md         # documentación del frontend
 ```
 
 ## Cómo correrlo en local
@@ -85,18 +88,18 @@ MVP_React_Java/
 
 ### 1. Base de datos
 
-Abrí `Back/panstock-api/database/panstock_schema_mock.sql` y reemplazá `panstock123` por la contraseña que quieras usar para el usuario `panstock_user`. Después ejecutalo desde MySQL Workbench o con:
+Abrí `Back/smartcrumbs-api/database/smartcrumbs_schema_mock.sql` y reemplazá `smartcrumbs123` por la contraseña que quieras usar para el usuario `smartcrumbs_user`. Después ejecutalo desde MySQL Workbench o con:
 
 ```bash
-mysql -u root -p < Back/panstock-api/database/panstock_schema_mock.sql
+mysql -u root -p < Back/smartcrumbs-api/database/smartcrumbs_schema_mock.sql
 ```
 
 ### 2. Backend
 
-Creá el archivo `Back/panstock-api/src/main/resources/application-local.properties` (git lo ignora) con tres líneas:
+Creá el archivo `Back/smartcrumbs-api/src/main/resources/application-local.properties` (git lo ignora) con tres líneas:
 
 ```properties
-spring.datasource.username=panstock_user
+spring.datasource.username=smartcrumbs_user
 spring.datasource.password=LA_CONTRASEÑA_QUE_ELEGISTE
 application.security.jwt.secretKey=UNA_CLAVE_ALEATORIA_DE_32_O_MAS_CARACTERES
 ```
@@ -104,7 +107,7 @@ application.security.jwt.secretKey=UNA_CLAVE_ALEATORIA_DE_32_O_MAS_CARACTERES
 Para generar la clave: `openssl rand -hex 48`. En lugar del archivo también podés definir las variables de entorno `DB_PASSWORD` y `JWT_SECRET`. Después:
 
 ```bash
-cd Back/panstock-api
+cd Back/smartcrumbs-api
 ./mvnw spring-boot:run          # en Windows: .\mvnw.cmd spring-boot:run
 ```
 
@@ -113,7 +116,7 @@ La API queda en `http://localhost:8081`.
 ### 3. Frontend
 
 ```bash
-cd Front/panstock-client
+cd Front/smartcrumbs-client
 cp .env.example .env            # en Windows (PowerShell): Copy-Item .env.example .env
 npm install
 npm run dev
@@ -134,11 +137,11 @@ El script SQL crea estos usuarios, solo para desarrollo local (contraseña `1234
 ## Tests
 
 ```bash
-cd Back/panstock-api
+cd Back/smartcrumbs-api
 ./mvnw test
 ```
 
-El test de contexto de Spring (`PanstockApiApplicationTests`) necesita la base de datos y la configuración local del paso 2.
+El test de contexto de Spring (`SmartCrumbsApiApplicationTests`) necesita la base de datos y la configuración local del paso 2.
 
 ## Producción
 
@@ -158,8 +161,7 @@ Para el frontend, copiá `.env.prod.example` como `.env.production` y poné la U
 
 - [ ] Tests de la lógica de ventas con FEFO (venta en un lote, reparto entre lotes, stock insuficiente, lote vencido).
 - [ ] Bloqueo de concurrencia al registrar ventas, para evitar vender de más.
-- [ ] Generación programada de alertas (`@Scheduled`) en lugar de disparo manual.
-- [ ] Pantallas para alertas y configuración del sistema (detalle en [`Panstock_client.md`](Front/panstock-client/Panstock_client.md)).
+- [ ] Notificaciones push reales (Web Push), que lleguen con la app cerrada, y el selector de canal funcionando.
 - [ ] Pantalla de perfil para que cada usuario cambie su contraseña.
 - [ ] Integración continua con GitHub Actions y una base de datos de prueba para los tests de contexto.
 - [ ] Dividir las páginas más grandes del frontend en componentes.

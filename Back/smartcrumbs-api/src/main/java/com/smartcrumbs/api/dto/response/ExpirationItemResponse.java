@@ -1,0 +1,23 @@
+package com.smartcrumbs.api.dto.response;
+
+import com.smartcrumbs.api.enums.ExpirationStatus;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public record ExpirationItemResponse(
+        Long batchId,
+
+        Long productId,
+        String productName,
+
+        String categoryName,
+
+        BigDecimal currentQuantity,
+
+        LocalDate expirationDate,
+        Long daysToExpire,
+
+        ExpirationStatus status
+) {
+}

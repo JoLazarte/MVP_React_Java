@@ -1,0 +1,32 @@
+package com.smartcrumbs.api.repository;
+
+import com.smartcrumbs.api.entity.User;
+import com.smartcrumbs.api.enums.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    List<User> findAllByOrderByLastNameAscFirstNameAsc();
+
+    List<User> findByEnabledTrueOrderByLastNameAscFirstNameAsc();
+
+    List<User> findByEnabledTrueAndRoleOrderByLastNameAscFirstNameAsc(Role role);
+
+    boolean existsByEmailIgnoreCase(String email);
+    /**
+     * Verifica si existe otro usuario con el mismo email,
+     * excluyendo al usuario con el id indicado.
+     * Se usa en updateUser para no bloquear al usuario
+     * si su email no cambió.
+     */
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+
+    @Query("SELECT u FROM User u WHERE u.username = ?1")
+    Optional<User> findByUsername(String username);
+    Boolean existsByUsername(String username);
+    Boolean existsByEmail(String email);
+}

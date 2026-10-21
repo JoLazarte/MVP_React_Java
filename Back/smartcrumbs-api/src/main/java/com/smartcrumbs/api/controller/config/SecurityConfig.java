@@ -1,0 +1,140 @@
+package com.smartcrumbs.api.controller.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.smartcrumbs.api.enums.Role;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthFilter;
+
+    @Autowired
+    @Lazy
+    private AuthenticationProvider authenticationProvider;
+
+    /** Orígenes permitidos por CORS (propiedad app.cors.allowed-origins, separados por coma). */
+    @Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(req -> req
+
+                    // ── Preflight ────────────────────────────────────────────────────
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                    // ── Auth: solo el login es público (no hay registro abierto) ─────
+                    .requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll()
+
+                    // ── Service Worker: public ────────────────────────────────────────
+                    .requestMatchers("/sw.js").permitAll()
+
+                    // ── Página de error de Spring Boot: pública, para que un 500 o un 404
+                    //    llegue al cliente como tal y no como 401/403 ──────────────────
+                    .requestMatchers("/error").permitAll()
+
+                    // ── Users ─────────────────────────────────────────────────────────
+                    .requestMatchers(HttpMethod.GET, "/users/data").authenticated()
+                    .requestMatchers(HttpMethod.PUT, "/users/update").authenticated()
+                    .requestMatchers("/users/**").hasRole(Role.OWNER.name())
+
+                    // ── Products ──────────────────────────────────────────────────────
+                    .requestMatchers(HttpMethod.GET,    "/api/products/**").authenticated()
+                    .requestMatchers(HttpMethod.POST,   "/api/products/**").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.PUT,    "/api/products/**").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole(Role.OWNER.name())
+
+                    // ── Categories ────────────────────────────────────────────────────
+                    .requestMatchers(HttpMethod.GET,    "/api/categories/**").authenticated()
+                    .requestMatchers(HttpMethod.POST,   "/api/categories/**").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.PUT,    "/api/categories/**").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole(Role.OWNER.name())
+
+                    // ── Suppliers ─────────────────────────────────────────────────────
+                    .requestMatchers(HttpMethod.GET,    "/api/suppliers/**").authenticated()
+                    .requestMatchers(HttpMethod.POST,   "/api/suppliers/**").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.PUT,    "/api/suppliers/**").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.DELETE, "/api/suppliers/**").hasRole(Role.OWNER.name())
+
+                    // ── Restock suggestions: OWNER only ───────────────────────────────
+                    .requestMatchers(HttpMethod.GET, "/api/stock/restock-suggestions").hasRole(Role.OWNER.name())
+
+                    // ── Stock: OWNER + EMPLOYEE ───────────────────────────────────────
+                    .requestMatchers("/api/stock/**").authenticated()
+                    
+                    // ── Waste records: OWNER + EMPLOYEE ───────────────────────────────
+                    .requestMatchers(HttpMethod.GET,  "/api/waste-records").authenticated()
+                    .requestMatchers(HttpMethod.GET,  "/api/waste-records/**").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/waste-records").authenticated()
+
+                    // ── Alerts: OWNER + EMPLOYEE ──────────────────────────────────────
+                    .requestMatchers("/api/alerts/**").authenticated()
+
+                    // ── Dashboard: OWNER + EMPLOYEE ───────────────────────────────────
+                    .requestMatchers("/api/dashboard/**").authenticated()
+
+                    // ── Promotions ────────────────────────────────────────────────────
+                    .requestMatchers(HttpMethod.GET, "/api/promotions/suggestions").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.GET, "/api/promotions").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/promotions/active").authenticated()
+                    // Crear y cancelar promociones: solo OWNER (antes caía en anyRequest().authenticated())
+                    .requestMatchers(HttpMethod.POST,  "/api/promotions").hasRole(Role.OWNER.name())
+                    .requestMatchers(HttpMethod.PATCH, "/api/promotions/**").hasRole(Role.OWNER.name())
+
+                    // ── Reports: OWNER only ───────────────────────────────────────────
+                    .requestMatchers("/api/reports/**").hasRole(Role.OWNER.name())
+
+                    // ── Settings: OWNER only ───────────────────────────────────────────
+                    .requestMatchers("/api/settings/**").hasRole(Role.OWNER.name())
+
+                    // ── Actuator: solo el chequeo de salud es público ─────────────────
+                    .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+
+                    // ── Anything else: authenticated ───────────────────────────────────
+                    .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+            .authenticationProvider(authenticationProvider)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        
+        corsConfig.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        corsConfig.setAllowCredentials(false);
+        corsConfig.addAllowedHeader("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+        return source;
+    }
+}

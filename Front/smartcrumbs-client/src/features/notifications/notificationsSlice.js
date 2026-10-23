@@ -28,6 +28,8 @@ const initialState = {
   // Usamos Date.now().toString() para que sea único y serializable.
   resetToken:       '0',
   lastCheckAt:      null,
+  // Cuántos lotes (amarillo/rojo) había para avisar en el último chequeo
+  lastCheckUrgent:  null,
 };
 
 
@@ -86,6 +88,16 @@ const notificationsSlice = createSlice({
     setLastCheckAt(state, action) { state.lastCheckAt = action.payload; },
 
 
+    setLastCheckUrgent(state, action) { state.lastCheckUrgent = action.payload; },
+
+
+    // Olvida los avisos de hoy y fuerza un chequeo inmediato (vuelve a avisar los lotes).
+    clearNotifiedBatches(state) {
+      state.notifiedBatchIds = [];
+      state.resetToken       = Date.now().toString();
+    },
+
+
     resetNotificationPrefs(state) {
       state.enabled          = false;
       state.channel          = 'auto';
@@ -108,6 +120,8 @@ export const {
   markBatchNotified,
   cleanStaleNotified,
   setLastCheckAt,
+  setLastCheckUrgent,
+  clearNotifiedBatches,
   resetNotificationPrefs,
 } = notificationsSlice.actions;
 
@@ -119,6 +133,7 @@ export const selectNotifPermission  = (s) => s.notifications.permission;
 export const selectSwRegistered     = (s) => s.notifications.swRegistered;
 export const selectNotifiedBatchIds = (s) => s.notifications.notifiedBatchIds;
 export const selectResetToken       = (s) => s.notifications.resetToken;
+export const selectLastCheckUrgent  = (s) => s.notifications.lastCheckUrgent;
 export const selectLastCheckAt      = (s) => s.notifications.lastCheckAt;
 
 

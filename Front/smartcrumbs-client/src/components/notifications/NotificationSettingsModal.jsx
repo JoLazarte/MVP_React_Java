@@ -4,8 +4,8 @@ import { useDispatch, useSelector }    from 'react-redux';
 import { useNavigate }                 from 'react-router-dom';
 import {
   selectNotifEnabled, selectNotifChannel, selectNotifInterval,
-  selectLastCheckAt,
-  setEnabled, setChannel, setIntervalMinutes,
+  selectLastCheckAt, selectLastCheckUrgent,
+  setEnabled, setChannel, setIntervalMinutes, clearNotifiedBatches,
   syncPermission,
 } from '../../features/notifications/notificationsSlice';
 import {
@@ -188,6 +188,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
   const channel    = useSelector(selectNotifChannel);
   const interval   = useSelector(selectNotifInterval);
   const lastCheck  = useSelector(selectLastCheckAt);
+  const lastUrgent = useSelector(selectLastCheckUrgent);
 
 
   const [browserPerm, setBrowserPerm] = useState(() => getBrowserPermission());
@@ -655,9 +656,24 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
             </div>
 
 
+            <button
+              type="button"
+              style={{ ...LINK_BTN, opacity: enabled ? 1 : 0.5 }}
+              disabled={!enabled}
+              title="Vuelve a revisar ahora y avisa de nuevo los lotes de hoy"
+              onClick={() => dispatch(clearNotifiedBatches())}
+            >
+              ↻ Revisar ahora y volver a avisar
+            </button>
+
             {lastCheck && (
               <div style={{ fontSize:'0.7rem', color:'#B5A898', padding:'5px 9px', borderRadius:8, background:'rgba(200,137,58,0.04)', border:'1px solid rgba(200,137,58,0.12)', marginTop:2 }}>
                 Último chequeo: {fmt(lastCheck)}
+                {lastUrgent != null && (
+                  <> · {lastUrgent === 0
+                    ? 'no hay lotes en amarillo ni rojo'
+                    : `${lastUrgent} lote${lastUrgent !== 1 ? 's' : ''} en amarillo o rojo`}</>
+                )}
               </div>
             )}
           </Card>

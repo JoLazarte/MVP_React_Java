@@ -13,6 +13,7 @@ import {
   markBatchNotified,
   cleanStaleNotified,
   setLastCheckAt,
+  setLastCheckUrgent,
 } from './notificationsSlice';
 
 
@@ -397,6 +398,10 @@ export default function useNotifications() {
         (i) => (i.status === 'RED' || i.status === 'YELLOW')
           && i.daysToExpire != null && i.daysToExpire >= 0
       );
+
+
+      // Cuántos lotes hay para avisar en este chequeo (el modal lo muestra)
+      dispatch(setLastCheckUrgent(urgent.length));
 
 
       if (urgent.length === 0) return;

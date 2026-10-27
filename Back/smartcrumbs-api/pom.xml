@@ -34,6 +34,39 @@
 			<artifactId>jjwt-api</artifactId>
 			<version>0.12.5</version>
 		</dependency>
+		<!-- Web Push: notificaciones que llegan con la app cerrada -->
+		<dependency>
+			<groupId>nl.martijndwars</groupId>
+			<artifactId>web-push</artifactId>
+			<version>5.1.2</version>
+			<exclusions>
+				<!-- Solo se usa el envío sincrónico (PushService): no hacen falta el cliente async ni el CLI -->
+				<exclusion>
+					<groupId>org.asynchttpclient</groupId>
+					<artifactId>async-http-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.beust</groupId>
+					<artifactId>jcommander</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- La librería declara estas tres solo en runtime; el código propio las necesita para compilar -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.78.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.4.15</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bitbucket.b_c</groupId>
+			<artifactId>jose4j</artifactId>
+			<version>0.9.6</version>
+		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>

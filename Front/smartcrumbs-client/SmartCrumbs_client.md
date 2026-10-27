@@ -64,7 +64,7 @@ src/
 │   ├── auth/                     # Login, logout, perfil
 │   ├── catalog/                  # categoriesSlice, productsSlice, suppliersSlice
 │   ├── movements/                # movementsSlice (historial de movimientos)
-│   ├── notifications/            # notificationsSlice + hook useNotifications
+│   ├── notifications/            # notificationsSlice + hooks useNotifications y usePush (Web Push)
 │   ├── promotions/               # promotionsSlice
 │   ├── reports/                  # reportsSlice
 │   ├── settings/                 # settingsSlice (configuración del dueño)
@@ -72,7 +72,7 @@ src/
 │   ├── users/                    # usersSlice (empleados)
 │   └── waste/                    # wasteSlice, autoWasteNotificationSlice
 ├── pages/                        # Una página por ruta
-├── services/                     # authService, catalogService, stockService, userService, alertService, settingsService
+├── services/                     # authService, catalogService, stockService, userService, alertService, settingsService, pushService
 ├── utils/format.js               # Formato de números, moneda y fechas (es-AR)
 ├── store/store.js                # Configuración de Redux + persistencia
 ├── App.jsx                       # Rutas principales
@@ -189,7 +189,14 @@ Accesible para ambos roles (ítem **Alertas** de la barra superior). Lista las a
 Solo dueño. Dos ajustes del sistema (`/api/settings`), de 1 a 30 días: los **días de aviso de vencimiento** (definen el amarillo del semáforo, las alertas y las notificaciones, para todos los usuarios) y los **días para sugerir promociones** (20% si el lote vence hoy y 10% si faltan de 1 a N días). Se llega desde el modal de la campana o desde Alertas.
 
 ### Notificaciones
-Campana en la barra superior con un modal de preferencias **de este dispositivo**, válido para todos los roles: activar las notificaciones, el canal y la frecuencia de chequeo. Cada chequeo consulta el semáforo y avisa una vez por día de cada lote en amarillo o rojo; el servicio worker (`public/sw.js`) muestra la notificación. Los días de aviso ya no se configuran acá sino en Configuración, para que coincidan en toda la app. Por ahora las notificaciones locales solo llegan con la app abierta; el canal Push real está en desarrollo.
+Campana en la barra superior con un modal de preferencias **de este dispositivo**, válido para todos los roles: activar las notificaciones, el **canal** y la frecuencia de chequeo.
+
+Hay dos canales:
+
+- **Escritorio:** el navegador consulta el semáforo cada N minutos y avisa una vez por día de cada lote en amarillo o rojo. Solo funciona con la app abierta; el service worker (`public/sw.js`) muestra la notificación.
+- **Push (Web Push):** el hook `usePush` suscribe este dispositivo (`pushManager.subscribe` con la clave VAPID del servidor, `GET /api/push/config`) y se lo informa al backend (`POST /api/push/subscriptions`). Desde entonces el servidor avisa de las alertas nuevas aunque la app esté cerrada, y los chequeos locales se saltean para no duplicar los avisos. Si el usuario vuelve a *Escritorio* o apaga las notificaciones, el dispositivo se da de baja.
+
+**Automático** usa Push si el navegador y el servidor lo permiten y, si no, el canal de escritorio. La opción Push se deshabilita cuando el navegador no la soporta (por ejemplo, Safari en iPhone fuera de una app instalada) o el servidor no tiene claves VAPID. Con Push activo, el modal ofrece **Enviar push de prueba desde el servidor**. Los días de aviso se configuran en Configuración, no acá.
 
 ### Productos, Categorías y Proveedores
 - **Productos:** listado con filtros por categoría, origen y estado, y panel expandible con el detalle.
@@ -210,6 +217,6 @@ En los tres, el dueño crea, edita y desactiva (baja lógica) y el empleado solo
 
 ## Pendiente de implementar
 
-- Notificaciones push reales (Web Push), que lleguen con la app cerrada, y el selector de canal funcionando.
+- Notificaciones Push en iPhone y iPad (requieren instalar la app como PWA, con manifest).
 - Pantalla de perfil para que cada usuario cambie su contraseña.
 - Tests del frontend.

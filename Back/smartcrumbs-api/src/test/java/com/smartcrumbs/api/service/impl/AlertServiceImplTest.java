@@ -2,6 +2,8 @@ package com.smartcrumbs.api.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -18,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.smartcrumbs.api.dto.response.AlertGenerationResponse;
 import com.smartcrumbs.api.entity.Alert;
@@ -32,6 +35,7 @@ import com.smartcrumbs.api.repository.AlertRepository;
 import com.smartcrumbs.api.repository.AppSettingRepository;
 import com.smartcrumbs.api.repository.InventoryBatchRepository;
 import com.smartcrumbs.api.repository.ProductRepository;
+import com.smartcrumbs.api.service.AlertsCreatedEvent;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -50,6 +54,9 @@ class AlertServiceImplTest {
 
     @Mock
     private AppSettingRepository appSettingRepository;
+
+    @Mock
+    private ApplicationEventPublisher events;
 
     @InjectMocks
     private AlertServiceImpl service;
@@ -216,5 +223,25 @@ class AlertServiceImplTest {
         assertThat(result.createdAlerts()).isEqualTo(1);
         assertThat(result.alerts().get(0).severity()).isEqualTo(AlertSeverity.RED);
         assertThat(result.alerts().get(0).message()).contains("vence hoy");
+    }
+
+    // ── aviso por Push ───────────────────────────────────────────────────────
+
+    @Test
+    void newAlertsArePublishedSoThePushCanBeSent() {
+        Product bread = product(1L, "Pan", null);
+        InventoryBatch batch = batch(10L, bread, today().plusDays(1), "5", BatchStatus.AVAILABLE);
+        when(inventoryBatchRepository.findAll()).thenReturn(List.of(batch));
+
+        service.generateAlerts();
+
+        verify(events).publishEvent(any(AlertsCreatedEvent.class));
+    }
+
+    @Test
+    void nothingIsPublishedWhenNoAlertWasCreated() {
+        service.generateAlerts();
+
+        verify(events, never()).publishEvent(any(Object.class));
     }
 }

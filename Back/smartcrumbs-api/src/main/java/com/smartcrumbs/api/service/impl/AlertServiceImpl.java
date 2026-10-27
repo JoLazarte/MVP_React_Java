@@ -18,8 +18,10 @@ import com.smartcrumbs.api.repository.AppSettingRepository;
 import com.smartcrumbs.api.repository.InventoryBatchRepository;
 import com.smartcrumbs.api.repository.ProductRepository;
 import com.smartcrumbs.api.service.AlertService;
+import com.smartcrumbs.api.service.AlertsCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +63,7 @@ public class AlertServiceImpl implements AlertService {
     private final ProductRepository        productRepository;
     private final InventoryBatchRepository inventoryBatchRepository;
     private final AppSettingRepository     appSettingRepository;
+    private final ApplicationEventPublisher events;
 
     @Override
     @Transactional(readOnly = true)
@@ -97,11 +100,16 @@ public class AlertServiceImpl implements AlertService {
             log.info("Alertas: {} nuevas, {} resueltas automáticamente", created.size(), autoResolved);
         }
 
-        return new AlertGenerationResponse(
-                created.size(),
-                created.stream()
-                        .map(AlertMapper::toResponse)
-                        .toList());
+        List<AlertResponse> responses = created.stream()
+                .map(AlertMapper::toResponse)
+                .toList();
+
+        // Se avisa por Push cuando la transacción se confirma (ver PushAlertListener)
+        if (!responses.isEmpty()) {
+            events.publishEvent(new AlertsCreatedEvent(responses));
+        }
+
+        return new AlertGenerationResponse(responses.size(), responses);
     }
 
     @Override

@@ -17,7 +17,7 @@ import {
 } from '../../features/stock/expirationSlice';
 import NotificationSettingsModal from './NotificationSettingsModal';
 
-export default function NotificationBell({ onRequestPermission }) {
+export default function NotificationBell({ onRequestPermission, push }) {
   const enabled      = useSelector(selectNotifEnabled);
   const permission   = useSelector(selectNotifPermission);
   const expiredCount = useSelector(selectExpiredCount);
@@ -135,6 +135,7 @@ export default function NotificationBell({ onRequestPermission }) {
           onClose={() => setModalOpen(false)}
           onRequestPermission={onRequestPermission}
           onTestNotification={handleTestNotification}
+          push={push}
         />
       )}
 

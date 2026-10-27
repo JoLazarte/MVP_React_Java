@@ -1,4 +1,4 @@
-const CACHE_NAME  = 'smartcrumbs-v4';
+const CACHE_NAME  = 'smartcrumbs-v5';
 const NOTIF_ICON  = '/logo_smartcrumbs.png';
 const NOTIF_BADGE = '/logo_smartcrumbs.png';
 
@@ -50,7 +50,7 @@ self.addEventListener('push', (event) => {
     requireInteraction: false,
     data:               { url: data.url || '/expiration', ...data },
     actions: [
-      { action: 'view',    title: 'Ver vencimientos' },
+      { action: 'view',    title: data.actionTitle || 'Ver vencimientos' },
       { action: 'dismiss', title: 'Cerrar'           },
     ],
   };

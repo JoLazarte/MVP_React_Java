@@ -3,6 +3,7 @@ import { useDispatch, useSelector }       from 'react-redux';
 import { selectToken }                    from '../auth/authSlice';
 import {
   selectNotifEnabled,
+  selectNotifChannel,
   selectNotifInterval,
   selectNotifPermission,
   selectNotifiedBatchIds,
@@ -15,6 +16,7 @@ import {
   setLastCheckAt,
   setLastCheckUrgent,
 } from './notificationsSlice';
+import usePush from './usePush';
 
 
 //const BASE_URL = import.meta.env.VITE_API_URL;
@@ -305,6 +307,14 @@ export default function useNotifications() {
   tokenRef.current = token;
 
 
+  // Push real: si este dispositivo lo tiene activo, el servidor avisa (aunque la app esté
+  // cerrada) y los chequeos locales se saltean para no duplicar los avisos.
+  const channel = useSelector(selectNotifChannel);
+  const push = usePush({ token, enabled, channel, permission: storedPermission });
+  const pushActiveRef = useRef(false);
+  pushActiveRef.current = push.active;
+
+
   /* ── Sync permiso: polling cada 2s ──────────────────────────────────────── */
   useEffect(() => {
     const sync = () => dispatch(syncPermission());
@@ -364,6 +374,7 @@ export default function useNotifications() {
     if (!tkn)                        return;
     if (!supportsNotifications())    return;
     if (perm !== 'granted')          return;
+    if (pushActiveRef.current)       return; // el servidor avisa por Push
 
 
     if (import.meta.env?.DEV) console.log('[SmartCrumbs Notif] Chequeando vencimientos…');
@@ -564,6 +575,7 @@ export default function useNotifications() {
     storedPermission,
     checkExpirations,
     resetToken, // garantiza que el check corre DESPUÉS del reset del Set local
+    push.active, // al dejar de usar Push, se chequea enseguida de forma local
   ]);
 
 
@@ -583,6 +595,7 @@ export default function useNotifications() {
       return result;
     },
     checkNow:              checkExpirations,
+    push,
     isMobile:              isMobileDevice(),
     isMacOS:               isMacOS(),
     supportsNotifications: supportsNotifications(),

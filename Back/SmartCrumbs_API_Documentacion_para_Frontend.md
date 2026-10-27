@@ -2464,6 +2464,15 @@ POST  /api/alerts/generate
 PATCH /api/alerts/{id}/resolve
 ```
 
+## Push
+
+```http
+GET    /api/push/config
+POST   /api/push/subscriptions
+DELETE /api/push/subscriptions?endpoint=...
+POST   /api/push/test
+```
+
 ---
 
 # 27. Alcance actual y cosas que no están implementadas todavía
@@ -2471,8 +2480,8 @@ PATCH /api/alerts/{id}/resolve
 Actualmente no está implementado:
 
 - integración con caja registradora;
-- generación automática programada de alertas;
 - envío de notificaciones por WhatsApp/Telegram/email;
+- notificaciones push en iPhone y iPad (requieren instalar la app como PWA);
 - predicción de demanda;
 - integración con balanzas;
 - microservicios separados.
@@ -2480,3 +2489,118 @@ Actualmente no está implementado:
 Estos puntos quedan para futuras versiones.
 
 Para el MVP actual, el backend permite construir una interfaz completa de gestión de inventario, vencimientos, mermas, promociones, alertas y reportes.
+
+---
+
+# 28. Notificaciones push (Web Push)
+
+## 28.1. Contexto
+
+Además de guardar alertas (sección 21), el backend avisa por **Web Push**: el navegador recibe la notificación aunque la app esté cerrada. Cuando una pasada de generación de alertas (programada o pedida con `POST /api/alerts/generate`) crea alertas nuevas, el servidor envía **un solo aviso resumen** a todos los dispositivos suscriptos de usuarios habilitados.
+
+Requiere un par de claves VAPID en el servidor (`app.push.vapid-public-key` y `app.push.vapid-private-key`). Sin ellas, Push queda deshabilitado y el resto de la API funciona igual.
+
+Todos los endpoints son para cualquier usuario autenticado.
+
+---
+
+## 28.2. Configuración del servidor
+
+```http
+GET /api/push/config
+```
+
+```json
+{
+  "enabled": true,
+  "publicKey": "BPx..."
+}
+```
+
+`publicKey` es la clave pública VAPID que el navegador necesita para suscribirse (`pushManager.subscribe({ userVisibleOnly: true, applicationServerKey })`). Si `enabled` es `false`, la clave viene en `null` y no hay que intentar suscribirse.
+
+---
+
+## 28.3. Suscribir un dispositivo
+
+```http
+POST /api/push/subscriptions
+Content-Type: application/json
+```
+
+Body: lo que devuelve `PushSubscription.toJSON()` del navegador.
+
+```json
+{
+  "endpoint": "https://fcm.googleapis.com/fcm/send/...",
+  "keys": {
+    "p256dh": "BN...",
+    "auth": "k8..."
+  }
+}
+```
+
+Responde `204 No Content`. Si el `endpoint` ya existía, se **reasigna al usuario actual** (por ejemplo, otro usuario que inicia sesión en el mismo navegador). Errores: `400` si Push no está configurado o faltan datos.
+
+---
+
+## 28.4. Dar de baja un dispositivo
+
+```http
+DELETE /api/push/subscriptions?endpoint=https%3A%2F%2F...
+```
+
+Responde `204`. Solo elimina suscripciones del propio usuario.
+
+---
+
+## 28.5. Push de prueba
+
+```http
+POST /api/push/test
+```
+
+```json
+{ "sent": 1 }
+```
+
+`sent` es la cantidad de dispositivos del usuario que recibieron el aviso. Responde `400` si Push no está configurado o el usuario no tiene dispositivos suscriptos.
+
+---
+
+## 28.6. Qué se envía
+
+El mensaje es un JSON que lee el service worker (`public/sw.js`):
+
+```json
+{
+  "title": "SmartCrumbs — Nuevas alertas",
+  "body": "Leche vence hoy.\nPan vence dentro de 2 día(s).",
+  "tag": "smartcrumbs-alerts",
+  "url": "/alerts",
+  "actionTitle": "Ver alertas"
+}
+```
+
+- Un único aviso por pasada, con hasta 3 alertas en el cuerpo y un "+N más".
+- Urgencia alta si alguna alerta es roja (vence hoy o ya venció).
+- Vence a las 12 horas si el dispositivo estaba apagado, y un aviso nuevo reemplaza al anterior (`tag` y topic `smartcrumbs-alerts`).
+- Si el servicio push del navegador responde que la suscripción ya no existe (HTTP 404 o 410), el servidor la elimina.
+
+---
+
+## 28.7. Tabla
+
+La entidad `PushSubscription` se guarda en `push_subscriptions` (el script de MySQL ya la crea). En producción (PostgreSQL, con `ddl-auto=none`) hay que crearla a mano:
+
+```sql
+CREATE TABLE push_subscriptions (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    endpoint VARCHAR(700) NOT NULL UNIQUE,
+    p256dh VARCHAR(255) NOT NULL,
+    auth VARCHAR(255) NOT NULL,
+    user_agent VARCHAR(255),
+    created_at TIMESTAMP NOT NULL
+);
+```

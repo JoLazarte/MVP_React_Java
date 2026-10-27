@@ -184,6 +184,18 @@ CREATE TABLE alerts (
     CONSTRAINT fk_alerts_batch FOREIGN KEY (batch_id) REFERENCES inventory_batches(id)
 );
 
+-- Dispositivos suscriptos a notificaciones Push (uno por navegador)
+CREATE TABLE push_subscriptions (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    endpoint VARCHAR(700) NOT NULL UNIQUE,
+    p256dh VARCHAR(255) NOT NULL,
+    auth VARCHAR(255) NOT NULL,
+    user_agent VARCHAR(255),
+    created_at DATETIME NOT NULL,
+    CONSTRAINT fk_push_subscriptions_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 CREATE TABLE app_settings (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     setting_key VARCHAR(100) NOT NULL UNIQUE,
@@ -241,6 +253,7 @@ CREATE INDEX idx_alerts_type ON alerts(alert_type);
 CREATE INDEX idx_alerts_status ON alerts(status);
 CREATE INDEX idx_alerts_product ON alerts(product_id);
 CREATE INDEX idx_alerts_batch ON alerts(batch_id);
+CREATE INDEX idx_push_subscriptions_user ON push_subscriptions(user_id);
 
 -- =========================================================
 -- DATOS

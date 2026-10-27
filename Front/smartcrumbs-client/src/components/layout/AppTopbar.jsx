@@ -44,7 +44,7 @@ export default function AppTopbar() {
 
   const isOwner = user?.role === 'OWNER';
 
-  const { requestPermission } = useNotifications();
+  const { requestPermission, push } = useNotifications();
 
   useEffect(() => {
     if (!token) return;
@@ -155,7 +155,7 @@ export default function AppTopbar() {
 
         {/* ── Right side ── */}
         <div className="topbar-right">
-          <NotificationBell onRequestPermission={requestPermission} />
+          <NotificationBell onRequestPermission={requestPermission} push={push} />
 
           {/* Avatar con inicial */}
           {user && (

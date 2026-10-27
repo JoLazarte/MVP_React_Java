@@ -22,7 +22,7 @@ En una panadería, buena parte de la mercadería tiene fecha de vencimiento cort
 - **Promociones:** para productos por vencer, el sistema sugiere un descuento: 20% si el lote vence hoy y 10% si faltan de 1 a N días (N lo configura el dueño). El dueño las aprueba, las crea a mano o las cancela.
 - **Reposición sugerida** según ventas y stock (solo dueño).
 - **Reportes** (solo dueño): ventas por producto y categoría, saldo de stock, mermas por categoría y por proveedor.
-- **Alertas y notificaciones:** el sistema genera solo las alertas de vencimiento y de stock bajo (y las cierra cuando el problema se arregla), y avisa con notificaciones del navegador los lotes que el semáforo marca en amarillo o rojo.
+- **Alertas y notificaciones:** el sistema genera solo las alertas de vencimiento y de stock bajo (y las cierra cuando el problema se arregla). Los avisos llegan por **Web Push**, aunque la app esté cerrada (Windows, macOS y Android), o como notificaciones del navegador mientras la app está abierta; cada dispositivo elige su canal en la campana.
 - **Configuración** (solo dueño): días de aviso de vencimiento y días para sugerir promociones.
 - **Catálogo:** productos, categorías y proveedores, con baja lógica.
 - **Gestión de empleados:** no hay registro abierto. El dueño crea las cuentas de sus empleados, les pasa el usuario y la contraseña inicial, y puede deshabilitarlos o volver a habilitarlos.
@@ -124,6 +124,24 @@ npm run dev
 
 La app queda en `http://localhost:5173`. En desarrollo, Vite redirige `/api`, `/auth` y `/users` al backend indicado en `VITE_API_URL`.
 
+### Notificaciones Push (opcional)
+
+Para que los avisos lleguen con la app cerrada, el servidor necesita un par de claves VAPID. Generalas una vez:
+
+```bash
+npx web-push generate-vapid-keys
+```
+
+Agregalas a `application-local.properties` (o como variables de entorno `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` y `VAPID_SUBJECT`):
+
+```properties
+app.push.vapid-public-key=LA_CLAVE_PUBLICA
+app.push.vapid-private-key=LA_CLAVE_PRIVADA
+app.push.subject=mailto:tu-email@ejemplo.com
+```
+
+La clave **privada es secreta**: nunca se sube a git. Sin claves la app funciona igual, solo con notificaciones locales. Después, en la campana, elegí el canal **Push** o **Automático**. Si usabas una base de datos creada antes de esta función, ejecutá el `CREATE TABLE push_subscriptions` del script SQL.
+
 ### Usuarios de prueba
 
 El script SQL crea estos usuarios, solo para desarrollo local (contraseña `1234` para todos):
@@ -154,6 +172,7 @@ Se activa con `SPRING_PROFILES_ACTIVE=prod` y se configura solo con variables de
 | `DB_PASSWORD` | contraseña de la base |
 | `JWT_SECRET` | clave JWT aleatoria, de 32 caracteres o más |
 | `APP_CORS_ALLOWED_ORIGINS` | URL pública del frontend (varias, separadas por coma) |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | (opcionales) claves para las notificaciones Push; sin ellas Push queda deshabilitado. En PostgreSQL hay que crear la tabla `push_subscriptions` (ver doc de la API, sección 28) |
 
 Para el frontend, copiá `.env.prod.example` como `.env.production` y poné la URL pública de la API en `VITE_API_URL` antes de hacer `npm run build`.
 
@@ -161,7 +180,7 @@ Para el frontend, copiá `.env.prod.example` como `.env.production` y poné la U
 
 - [ ] Tests de la lógica de ventas con FEFO (venta en un lote, reparto entre lotes, stock insuficiente, lote vencido).
 - [ ] Bloqueo de concurrencia al registrar ventas, para evitar vender de más.
-- [ ] Notificaciones push reales (Web Push), que lleguen con la app cerrada, y el selector de canal funcionando.
+- [ ] Notificaciones Push en iPhone y iPad (requieren instalar la app como PWA).
 - [ ] Pantalla de perfil para que cada usuario cambie su contraseña.
 - [ ] Integración continua con GitHub Actions y una base de datos de prueba para los tests de contexto.
 - [ ] Dividir las páginas más grandes del frontend en componentes.

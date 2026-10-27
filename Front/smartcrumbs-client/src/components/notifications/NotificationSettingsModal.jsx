@@ -16,6 +16,10 @@ import {
 import { selectUser } from '../../features/auth/authSlice';
 
 
+function permissionHint(perm) {
+  return perm === 'granted' ? null : 'Activá el permiso de notificaciones del navegador para usar Push.';
+}
+
 const LINK_BTN = {
   padding:'8px 12px', borderRadius:10, cursor:'pointer',
   border:'1.5px solid #EDE6DB', background:'white',
@@ -177,7 +181,7 @@ function Stepper({ value, onChange, onBlur, onDec, onInc, min, max, disabled, la
 const IVLS = [5, 10, 15, 30, 60, 120, 240];
 
 
-export default function NotificationSettingsModal({ onClose, onRequestPermission, onTestNotification }) {
+export default function NotificationSettingsModal({ onClose, onRequestPermission, onTestNotification, push }) {
   const dispatch   = useDispatch();
   const navigate   = useNavigate();
   const user       = useSelector(selectUser);
@@ -199,6 +203,9 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
   const hasNotif = supportsNotifications();
   const hasSW    = supportsServiceWorker();
 
+  const [serverTesting, setServerTesting] = useState(false);
+  const [serverTestMsg, setServerTestMsg] = useState(null);
+
 
   const canToggle = hasNotif && browserPerm === 'granted';
 
@@ -209,9 +216,25 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
   const [lIvl,    setLIvl]    = useState(String(interval));
 
 
-  // Por ahora todos los dispositivos usan notificaciones locales (con la app abierta).
-  // El canal Push real (con la app cerrada) llega en la siguiente etapa.
-  const effCh = 'desktop';
+  // Canal efectivo: Push real si está activo en este dispositivo; si no, notificaciones locales
+  const pushState       = push?.state ?? 'inactive';
+  const effCh           = push?.active ? 'push' : 'desktop';
+  const pushUnavailable = pushState === 'unsupported' || pushState === 'unconfigured';
+
+  const handleServerTest = async () => {
+    setServerTesting(true);
+    setServerTestMsg(null);
+    try {
+      const sent = await push.sendTest();
+      setServerTestMsg(sent > 0
+        ? `Enviado a ${sent} dispositivo${sent !== 1 ? 's' : ''}. Cerrá la app y mirá si llega.`
+        : 'El servidor no pudo entregar el aviso. Probá de nuevo.');
+    } catch (e) {
+      setServerTestMsg(e.message || 'No se pudo enviar el aviso.');
+    } finally {
+      setServerTesting(false);
+    }
+  };
 
 
   /* ── Sync permiso cada 1.5s ──────────────────────────────────────────────── */
@@ -581,9 +604,9 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
           <Card title="Canal de notificación" disabled={!enabled || !canToggle}>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
               {[
-                { v:'auto',    ic: onMac ? '🍎' : '⚡', nm:'Automático', ds: onMac ? 'Detecta macOS → SW' : 'Detecta el dispositivo', ex: channel==='auto' ? `→ usando ${effCh==='push'?'Push':'escritorio'}` : null },
-                { v:'desktop', ic:'🖥️', nm:'Escritorio', ds: onMac ? 'SW (recomendado macOS)' : 'Notifs. del sistema' },
-                { v:'push',    ic:'📱', nm:'Push',        ds:'Próximamente', na:true },
+                { v:'auto',    ic:'⚡', nm:'Automático', ds:'Push si está disponible', ex: channel==='auto' ? `→ usando ${effCh==='push'?'Push':'escritorio'}` : null },
+                { v:'desktop', ic:'🖥️', nm:'Escritorio', ds:'Solo con la app abierta' },
+                { v:'push',    ic:'📱', nm:'Push',        ds: pushState==='unsupported' ? 'No soportado aquí' : pushState==='unconfigured' ? 'Servidor sin configurar' : 'Con la app cerrada', na: pushUnavailable },
               ].map((o) => (
                 <label
                   key={o.v}
@@ -614,6 +637,27 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
                 </label>
               ))}
             </div>
+
+            {(channel === 'push' || channel === 'auto') && enabled && (
+              <div style={{ fontSize:'0.72rem', color: pushState==='error' ? '#C0392B' : '#8C7B6B', lineHeight:1.5 }}>
+                {pushState === 'active'       && '✓ Push activo en este dispositivo: te llegan los avisos aunque la app esté cerrada.'}
+                {pushState === 'subscribing'  && 'Activando Push…'}
+                {pushState === 'loading'      && 'Consultando al servidor…'}
+                {pushState === 'error'        && `No se pudo activar Push: ${push?.error || 'error desconocido'}. Se usan notificaciones locales.`}
+                {pushState === 'unsupported'  && 'Este navegador no soporta Push (en iPhone y iPad hace falta instalar la app). Se usan notificaciones locales.'}
+                {pushState === 'unconfigured' && 'El servidor todavía no tiene Push configurado (faltan las claves VAPID). Se usan notificaciones locales.'}
+                {pushState === 'inactive'     && permissionHint(browserPerm)}
+              </div>
+            )}
+
+            {push?.active && (
+              <button type="button" style={LINK_BTN} disabled={serverTesting} onClick={handleServerTest}>
+                {serverTesting ? 'Enviando…' : '📡 Enviar push de prueba desde el servidor'}
+              </button>
+            )}
+            {serverTestMsg && (
+              <div style={{ fontSize:'0.72rem', color:'#8C7B6B', lineHeight:1.5 }}>{serverTestMsg}</div>
+            )}
           </Card>
 
 
@@ -638,9 +682,19 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
 
 
             <div style={{ fontSize:'0.74rem', color:'#8C7B6B', lineHeight:1.55 }}>
-              Este equipo revisa los vencimientos con esa frecuencia mientras la app esté abierta y
-              avisa <strong>una vez por día</strong> de cada lote. Se avisan los lotes que el semáforo
-              marca en <strong>amarillo o rojo</strong>; los días de aviso los define el dueño en Configuración.
+              {push?.active ? (
+                <>
+                  Con Push, el servidor revisa las alertas cada pocos minutos y avisa a este dispositivo aunque
+                  la app esté cerrada, así que este intervalo no se usa acá. Los días de aviso los define el
+                  dueño en Configuración.
+                </>
+              ) : (
+                <>
+                  Este equipo revisa los vencimientos con esa frecuencia mientras la app esté abierta y
+                  avisa <strong>una vez por día</strong> de cada lote. Se avisan los lotes que el semáforo
+                  marca en <strong>amarillo o rojo</strong>; los días de aviso los define el dueño en Configuración.
+                </>
+              )}
             </div>
 
 
@@ -723,6 +777,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
               {[
                 ['Notifications API', hasNotif, false],
                 ['Service Worker',    hasSW,    false],
+                ['Push (servidor)',   Boolean(push?.supported && pushState !== 'unconfigured'), false],
                 [isMobile ? 'Móvil' : onMac ? 'macOS' : 'Escritorio', true, true],
                 onMac ? ['Modo SW (macOS)', hasSW, true] : null,
               ].filter(Boolean).map(([lbl, ok, info]) => (

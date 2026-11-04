@@ -1,4 +1,4 @@
-# SmartCrumbs 🍞🕊️
+# SmartCrumbs ![Logo de la app](Front/smartcrumbs-client/public/logo_smartcrumbs.png)
 
 Sistema web para controlar el **stock y los vencimientos** de una franquicia de panaderías (Nombre de la franquicia). Registra cada ingreso por lote, descuenta las ventas con criterio **FEFO** (primero vence, primero sale) y avisa qué productos están por vencer para venderlos con promoción o descartarlos a tiempo.
 

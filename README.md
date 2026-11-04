@@ -4,7 +4,7 @@
       <h1>SmartCrumbs</h1>
     </td>
     <td style="border: none; vertical-align: middle; padding: 0; padding-left: 10px;">
-      <img src="Front/smartcrumbs-client/public/logo_smartcrumbs.png" alt="Logo" width="55" style="display: block;">
+      <img src="Front/smartcrumbs-client/public/logo_smartcrumbs.png" alt="Logo" width="60" style="display: block;">
     </td>
   </tr>
 </table>

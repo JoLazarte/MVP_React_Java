@@ -1,5 +1,5 @@
 <p>
-  <strong style="font-size: 3em; vertical-align: middle;">SmartCrumbs</strong>
+  <strong style="font-size: 4em; vertical-align: middle;">SmartCrumbs</strong>
   <img src="Front/smartcrumbs-client/public/logo_smartcrumbs.png" alt="Logo" width="55" align="middle" style="vertical-align: middle; margin-left: 10px;">
 </p>
 

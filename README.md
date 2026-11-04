@@ -1,13 +1,7 @@
-<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; border: none; background: transparent;">
-  <tr style="border: none; background: transparent;">
-    <td valign="middle" style="border: none; padding: 0; background: transparent;">
-      <h1>SmartCrumbs</h1>
-    </td>
-    <td valign="middle" style="border: none; padding: 0; padding-left: 15px; background: transparent;">
-      <img src="Front/smartcrumbs-client/public/logo_smartcrumbs.png" alt="Logo" width="50" style="display: block; border: none;">
-    </td>
-  </tr>
-</table>
+<div style="display: flex; align-items: center; gap: 15px;">
+  <h1 style="margin: 0; border: none;">SmartCrumbs</h1>
+  <img src="Front/smartcrumbs-client/public/logo_smartcrumbs.png" alt="Logo" width="55" style="display: block;">
+</div>
 
 Sistema web para controlar el **stock y los vencimientos** de una franquicia de panaderías (Nombre de la franquicia). Registra cada ingreso por lote, descuenta las ventas con criterio **FEFO** (primero vence, primero sale) y avisa qué productos están por vencer para venderlos con promoción o descartarlos a tiempo.
 

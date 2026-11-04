@@ -1,10 +1,10 @@
-<table border="0">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; border: none; background: transparent;">
   <tr style="border: none; background: transparent;">
-    <td style="border: none; vertical-align: middle; padding: 0;">
+    <td valign="middle" style="border: none; padding: 0; background: transparent;">
       <h1>SmartCrumbs</h1>
     </td>
-    <td style="border: none; vertical-align: middle; padding: 0; padding-left: 10px;">
-      <img src="Front/smartcrumbs-client/public/logo_smartcrumbs.png" alt="Logo" width="50" style="display: block;">
+    <td valign="middle" style="border: none; padding: 0; padding-left: 15px; background: transparent;">
+      <img src="Front/smartcrumbs-client/public/logo_smartcrumbs.png" alt="Logo" width="50" style="display: block; border: none;">
     </td>
   </tr>
 </table>

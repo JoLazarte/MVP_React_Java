@@ -1,6 +1,23 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router-dom';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faHouse, 
+  faCookieBite, 
+  faTrashCanArrowUp, 
+  faAlarmClock, 
+  faTags, 
+  faPlateWheat, 
+  faFolderClosed, 
+  faCartFlatbed, 
+  faBell, 
+  faBagShopping, 
+  faChartSimple, 
+  faUserPen 
+} from '@fortawesome/free-solid-svg-icons';
+
 import { logout, selectUser, selectToken } from '../../features/auth/authSlice';
 import {
   fetchSemaphore,
@@ -76,25 +93,25 @@ export default function AppTopbar() {
   const promotionsBadgeColor  = '#D68910';
 
   const BASE_NAV = [
-    { to: '/dashboard',   label: 'Inicio',       icon: '🏠', badge: null },
-    { to: '/stock',       label: 'Stock',         icon: '📦', badge: null },
-    { to: '/waste',       label: 'Mermas',        icon: '🗑️', badge: null },
+    { to: '/dashboard',   label: 'Inicio',       icon: faHouse, badge: null },
+    { to: '/stock',       label: 'Stock',         icon: faCookieBite, badge: null },
+    { to: '/waste',       label: 'Mermas',        icon: faTrashCanArrowUp, badge: null },
     {
-      to: '/expiration',  label: 'Vencimientos',  icon: '⏰',
+      to: '/expiration',  label: 'Vencimientos',  icon: faAlarmClock,
       badge:      urgentCount > 0 ? urgentCount : null,
       badgeColor: expirationBadgeColor,
     },
     {
-      to: '/promotions',  label: 'Promociones',   icon: '🏷️',
+      to: '/promotions',  label: 'Promociones',   icon: faTags,
       badge:      isOwner && promotionSuggestionsCount > 0
                     ? promotionSuggestionsCount
                     : null,
       badgeColor: promotionsBadgeColor,
     },
-    { to: '/products',    label: 'Productos',     icon: '🥐', badge: null },
-    { to: '/categories',  label: 'Categorías',    icon: '🗂',  badge: null },
-    { to: '/suppliers',   label: 'Proveedores',   icon: '🚚', badge: null },
-    { to: '/alerts',      label: 'Alertas',       icon: '🔔', badge: null },
+    { to: '/products',    label: 'Productos',     icon: faPlateWheat, badge: null },
+    { to: '/categories',  label: 'Categorías',    icon: faFolderClosed,  badge: null },
+    { to: '/suppliers',   label: 'Proveedores',   icon: faCartFlatbed, badge: null },
+    { to: '/alerts',      label: 'Alertas',       icon: faBell, badge: null },
   ];
 
   const OWNER_NAV = isOwner
@@ -102,15 +119,15 @@ export default function AppTopbar() {
         {
           to: '/restock',
           label: 'Reposición',
-          icon:  '🛒',
+          icon:  faBagShopping,
           badge:      restockCount > 0 ? restockCount : null,
           badgeColor: restockBadgeColor,
         },
         { to: '/reports',     
           label: 'Reportes',      
-          icon: '📊', 
+          icon: faChartSimple, 
           badge: null },
-        { to: '/users', label: 'Empleados', icon: '👥', badge: null },
+        { to: '/users', label: 'Empleados', icon: faUserPen, badge: null },
       ]
     : [];
 
@@ -138,7 +155,10 @@ export default function AppTopbar() {
               className={({ isActive }) => `topbar-link${isActive ? ' active' : ''}`}
               title={item.label}
             >
-              <span className="topbar-link-icon" aria-hidden="true">{item.icon}</span>
+              {/* 3. Reemplazar {item.icon} por el componente <FontAwesomeIcon /> */}
+              <span className="topbar-link-icon" aria-hidden="true">
+                <FontAwesomeIcon icon={item.icon} />
+              </span>
               <span className="topbar-link-label">{item.label}</span>
               {item.badge != null && (
                 <span
@@ -255,7 +275,7 @@ export default function AppTopbar() {
           text-decoration: none;
           font-size: 0.6rem;
           font-weight: 600;
-          color: var(--warm-gray);
+          color: gray;
           white-space: nowrap;
           flex-shrink: 0;
           transition: background var(--transition-fast), color var(--transition-fast);
@@ -263,17 +283,25 @@ export default function AppTopbar() {
           text-align: center;
         }
         .topbar-link:hover  { background: var(--cream-dark); color: var(--espresso); }
-        .topbar-link.active {
-          background: var(--espresso);
+        .topbar-link.active{
+          background: var(--peach);
           color: var(--cream);
           font-weight: 700;
         }
 
         .topbar-link-icon  {
-          font-size: 1.35rem;
+          font-size: 1.3rem;
           line-height: 1;
           display: block;
+          color: var(--espresso);
         }
+
+        .topbar-link.active .topbar-link-icon {
+          background: var(--peach);
+          color: var(--cream);
+          font-weight: 700;
+        }
+
         .topbar-link-label {
           line-height: 1;
           font-size: 0.58rem;

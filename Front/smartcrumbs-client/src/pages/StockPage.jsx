@@ -13,16 +13,38 @@ import { selectToken } from '../features/auth/authSlice';
 import { Modal, TableSkeleton } from '../components/ui/CatalogUI';
 import StockEntryForm from '../components/stock/StockEntryForm';
 import StockAdjustmentForm from '../components/stock/StockAdjustmentForm';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faSkull,
+  faCircle,
+  faCircleMinus,
+  faAlarmClock,
+  faNoteSticky,
+  faScaleBalanced,
+  faClockRotateLeft,
+  faCookieBite,
+  faRotateRight,
+  faInbox,
+  faClipboardList,
+  faIndustry,
+  faMagnifyingGlass,
+  faXmark,
+  faTemperatureHalf,
+  faSnowflake,
+  faIcicles,
+  faStore,
+  faWarehouse,
+} from '@fortawesome/free-solid-svg-icons';
 import AppTopbar from '../components/layout/AppTopbar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const EXPIRATION_CONFIG = {
-  EXPIRED:        { label: 'Vencido',        color: '#C0392B', bg: 'rgba(192,57,43,0.10)',  icon: '💀' },
-  RED:            { label: 'Vence hoy',      color: '#E74C3C', bg: 'rgba(231,76,60,0.10)',  icon: '🔴' },
-  YELLOW:         { label: 'Vence pronto',   color: '#D68910', bg: 'rgba(214,137,16,0.10)', icon: '🟡' },
-  GREEN:          { label: 'En buen estado', color: '#1E8449', bg: 'rgba(30,132,73,0.10)',  icon: '🟢' },
-  NOT_APPLICABLE: { label: 'Sin vencimiento',color: '#8C7B6B', bg: 'rgba(140,123,107,0.10)',icon: '⚪' },
+  EXPIRED:        { label: 'Vencido',        color: '#C0392B', bg: 'rgba(192,57,43,0.10)',  icon: faSkull },
+  RED:            { label: 'Vence hoy',      color: '#E74C3C', bg: 'rgba(231,76,60,0.10)',  icon: faCircle },
+  YELLOW:         { label: 'Vence pronto',   color: '#D68910', bg: 'rgba(214,137,16,0.10)', icon: faCircle },
+  GREEN:          { label: 'En buen estado', color: '#1E8449', bg: 'rgba(30,132,73,0.10)',  icon: faCircle },
+  NOT_APPLICABLE: { label: 'Sin vencimiento',color: '#8C7B6B', bg: 'rgba(140,123,107,0.10)',icon: faCircleMinus },
 };
 
 const BATCH_STATUS_LABELS = {
@@ -32,11 +54,11 @@ const BATCH_STATUS_LABELS = {
 };
 
 const STORAGE_LABELS = {
-  ROOM_TEMPERATURE: '🌡 Ambiente',
-  FRIDGE:   '❄️ Heladera',
-  FREEZER:  '🧊 Freezer',
-  DISPLAY:  '🍰 Vitrina',
-  STORAGE:  '📦 Depósito',
+  ROOM_TEMPERATURE: { label: 'Ambiente',  icon: faTemperatureHalf },
+  FRIDGE:           { label: 'Heladera',  icon: faSnowflake },
+  FREEZER:          { label: 'Freezer',   icon: faIcicles },
+  DISPLAY:          { label: 'Vitrina',   icon: faStore },
+  STORAGE:          { label: 'Depósito',  icon: faWarehouse },
 };
 
 const formatQty  = (v) => v != null ? Number(v).toLocaleString('es-AR') : '—';
@@ -56,7 +78,7 @@ function ExpirationPill({ status }) {
       fontSize: '0.72rem', fontWeight: 700,
       color: cfg.color, background: cfg.bg, whiteSpace: 'nowrap',
     }}>
-      {cfg.icon} {cfg.label}
+      <FontAwesomeIcon icon={cfg.icon} /> {cfg.label}
     </span>
   );
 }
@@ -94,7 +116,7 @@ function StockCard({ item }) {
       </div>
       {exp && (
         <div className="sc-exp" style={{ color: isUrgent ? '#C0392B' : 'var(--warm-gray)' }}>
-          ⏰ Vence: {formatDate(exp)}
+          <FontAwesomeIcon icon={faAlarmClock} /> Vence: {formatDate(exp)}
           {daysLeft != null && (
             <span style={{ marginLeft: 6, fontWeight: 700 }}>
               {daysLeft < 0 ? '(vencido)' : daysLeft === 0 ? '(hoy)' : `(${daysLeft}d)`}
@@ -187,7 +209,14 @@ function BatchRow({ batch, onAdjust, onHistory }) {
             </div>
             <div className="bd-item">
               <span className="bd-label">Almacenamiento</span>
-              <span>{STORAGE_LABELS[batch.storageType] || batch.storageType || '—'}</span>
+              {STORAGE_LABELS[batch.storageType]
+                ? (
+                  <span>
+                    <FontAwesomeIcon icon={STORAGE_LABELS[batch.storageType].icon} />{' '}
+                    {STORAGE_LABELS[batch.storageType].label}
+                  </span>
+                )
+                : <span>{batch.storageType || '—'}</span>}
             </div>
             <div className="bd-item">
               <span className="bd-label">Costo unitario</span>
@@ -203,18 +232,18 @@ function BatchRow({ batch, onAdjust, onHistory }) {
             </div>
           </div>
           {batch.notes && (
-            <p className="bd-notes">📝 {batch.notes}</p>
+            <p className="bd-notes"><FontAwesomeIcon icon={faNoteSticky} /> {batch.notes}</p>
           )}
           <div className="bd-actions">
             {blockedReason ? (
               <span className="bd-hint">{blockedReason}</span>
             ) : (
               <button type="button" className="bd-btn" onClick={() => onAdjust(batch)}>
-                ⚖️ Ajustar stock
+                <FontAwesomeIcon icon={faScaleBalanced} /> Ajustar stock
               </button>
             )}
             <button type="button" className="bd-btn ghost" onClick={() => onHistory(batch)}>
-              📜 Ver movimientos
+              <FontAwesomeIcon icon={faClockRotateLeft} /> Ver movimientos
             </button>
           </div>
         </div>
@@ -354,7 +383,7 @@ export default function StockPage() {
         {/* ── Header ── */}
         <div className="stock-header">
           <div>
-            <h1 className="stock-title">📦 Stock</h1>
+            <h1 className="stock-title"><FontAwesomeIcon icon={faCookieBite} /> Stock</h1>
             <p className="stock-sub">
               {summary.length} producto{summary.length !== 1 ? 's' : ''} ·{' '}
               {availableBatches} lote{availableBatches !== 1 ? 's' : ''} disponible{availableBatches !== 1 ? 's' : ''}
@@ -370,7 +399,7 @@ export default function StockPage() {
             disabled={isLoading}
             title="Actualizar"
           >
-            <span className={isLoading ? 'spin' : ''}>↻</span>
+            <span className={isLoading ? 'spin' : ''}><FontAwesomeIcon icon={faRotateRight} /></span>
           </button>
         </div>
 
@@ -379,7 +408,7 @@ export default function StockPage() {
           className="stock-action-btn entry"
           onClick={() => setModalOpen(true)}
         >
-          <span className="sab-icon">📥</span>
+          <span className="sab-icon"><FontAwesomeIcon icon={faInbox} /></span>
           <div className="sab-text">
             <span className="sab-title">Registrar ingreso</span>
             <span className="sab-sub">Agregar stock / nuevo lote</span>
@@ -387,7 +416,7 @@ export default function StockPage() {
         </button>
 
         <button type="button" className="stock-history-btn" onClick={() => navigate('/movements')}>
-          <span>📜</span>
+          <span><FontAwesomeIcon icon={faClockRotateLeft} /></span>
           <span>
             <strong>Historial de movimientos</strong>
             <small>Ingresos, ventas, mermas y ajustes</small>
@@ -424,18 +453,18 @@ export default function StockPage() {
               className={`stock-tab ${view === 'summary' ? 'active' : ''}`}
               onClick={() => setView('summary')}
             >
-              📊 Resumen
+              <FontAwesomeIcon icon={faClipboardList} /> Resumen
             </button>
             <button
               className={`stock-tab ${view === 'batches' ? 'active' : ''}`}
               onClick={() => setView('batches')}
             >
-              🗂 Lotes
+              <FontAwesomeIcon icon={faIndustry} /> Lotes
             </button>
           </div>
 
           <div className="stock-search-wrap">
-            <span className="stock-search-icon">🔍</span>
+            <span className="stock-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
             <input
               className="stock-search"
               placeholder="Buscar producto..."
@@ -443,7 +472,7 @@ export default function StockPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             {search && (
-              <button className="stock-search-clear" onClick={() => setSearch('')}>✕</button>
+              <button className="stock-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
             )}
           </div>
 
@@ -454,9 +483,9 @@ export default function StockPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="">Todos los estados</option>
-              <option value="AVAILABLE">✅ Disponible</option>
-              <option value="DEPLETED">🔴 Agotado</option>
-              <option value="DISCARDED">⚫ Descartado</option>
+              <option value="AVAILABLE">Disponible</option>
+              <option value="DEPLETED">Agotado</option>
+              <option value="DISCARDED">Descartado</option>
             </select>
           )}
         </div>
@@ -469,7 +498,7 @@ export default function StockPage() {
           <>
             {filteredSummary.length === 0 ? (
               <div className="stock-empty">
-                <span>📦</span>
+                <span><FontAwesomeIcon icon={faCookieBite} /></span>
                 <p>
                   {search
                     ? 'Sin resultados para esa búsqueda'
@@ -499,7 +528,7 @@ export default function StockPage() {
           <>
             {filteredBatches.length === 0 ? (
               <div className="stock-empty">
-                <span>🗂</span>
+                <span><FontAwesomeIcon icon={faIndustry} /></span>
                 <p>
                   {search || statusFilter
                     ? 'Sin resultados para los filtros aplicados'
@@ -648,7 +677,7 @@ export default function StockPage() {
         .stock-tab.active { background: white; color: var(--espresso); box-shadow: var(--shadow-sm); }
 
         .stock-search-wrap { position: relative; flex: 1; min-width: 160px; }
-        .stock-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+        .stock-search-icon { color: var(--warm-gray); position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
         .stock-search {
           width: 100%; padding: 9px 32px;
           font-family: var(--font-body); font-size: 0.86rem;

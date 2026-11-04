@@ -23,6 +23,13 @@ import {
 } from '../components/ui/CatalogUI';
 import CategoryForm from '../components/catalog/CategoryForm';
 import AppTopbar    from '../components/layout/AppTopbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faMagnifyingGlass,
+  faXmark,
+  faTriangleExclamation,
+  faFolderClosed,
+} from '@fortawesome/free-solid-svg-icons';
 
 // Guard helper — only OWNER can mutate
 const isOwner = (user) => user?.role === 'OWNER';
@@ -100,7 +107,7 @@ export default function CategoriesPage() {
         {/* ── Filters ── */}
         <FilterBar>
           <div className="cats-search-wrap">
-            <span className="cats-search-icon">🔍</span>
+            <span className="cats-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
             <input
               className="cats-search"
               placeholder="Buscar categoría..."
@@ -108,7 +115,7 @@ export default function CategoriesPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             {search && (
-              <button className="cats-search-clear" onClick={() => setSearch('')}>✕</button>
+              <button className="cats-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
             )}
           </div>
 
@@ -123,14 +130,14 @@ export default function CategoriesPage() {
         </FilterBar>
 
         {fetchErr && (
-          <div className="cats-error">⚠ {fetchErr}</div>
+          <div className="cats-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {fetchErr}</div>
         )}
 
         {status === 'loading' && <TableSkeleton rows={6} />}
 
         {status === 'succeeded' && filtered.length === 0 && (
           <EmptyState
-            icon="🗂"
+            icon={<FontAwesomeIcon icon={faFolderClosed} />}
             title="No hay categorías"
             description={
               search
@@ -237,7 +244,7 @@ export default function CategoriesPage() {
 
         /* Search */
         .cats-search-wrap { position: relative; flex: 1; min-width: 200px; }
-        .cats-search-icon {
+        .cats-search-icon { color: var(--warm-gray);
           position: absolute; left: 12px; top: 50%;
           transform: translateY(-50%); font-size: 0.85rem; pointer-events: none;
         }

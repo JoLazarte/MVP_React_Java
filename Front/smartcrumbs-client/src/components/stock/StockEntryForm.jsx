@@ -1,4 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCircleCheck,
+  faAlarmClock,
+  faInbox,
+} from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   registerStockEntry,
@@ -14,11 +20,11 @@ import { Alert } from '../ui/FormField';
 
 const STORAGE_TYPES = [
   { value: '',                 label: '— Sin especificar —' },
-  { value: 'ROOM_TEMPERATURE', label: '🌡 Temperatura ambiente' },
-  { value: 'FRIDGE',           label: '❄️  Heladera' },
-  { value: 'FREEZER',          label: '🧊 Freezer' },
-  { value: 'DISPLAY',          label: '🍰 Mostrador / Vitrina' },
-  { value: 'STORAGE',          label: '📦 Depósito' },
+  { value: 'ROOM_TEMPERATURE', label: 'Temperatura ambiente' },
+  { value: 'FRIDGE',           label: 'Heladera' },
+  { value: 'FREEZER',          label: 'Freezer' },
+  { value: 'DISPLAY',          label: 'Mostrador / Vitrina' },
+  { value: 'STORAGE',          label: 'Depósito' },
 ];
 
 const UNIT_LABELS = {
@@ -69,7 +75,7 @@ function SuccessView({ batch, onNew, onClose }) {
 
   return (
     <div className="ef-success">
-      <div className="ef-success-icon">✅</div>
+      <div className="ef-success-icon"><FontAwesomeIcon icon={faCircleCheck} /></div>
       <h3 className="ef-success-title">¡Lote registrado!</h3>
       <p className="ef-success-desc">
         Se ingresaron <strong>{qty}</strong> unidades de <strong>{productName}</strong>
@@ -89,7 +95,7 @@ function SuccessView({ batch, onNew, onClose }) {
           gap: 14px; padding: 8px 0 4px; text-align: center;
           animation: fadeIn 0.3s ease;
         }
-        .ef-success-icon  { font-size: 3rem; }
+        .ef-success-icon  { font-size: 3rem; color: #2E7D32; }
         .ef-success-title {
           font-family: var(--font-display); font-size: 1.3rem;
           font-weight: 700; color: var(--espresso);
@@ -273,7 +279,7 @@ export default function StockEntryForm({ onSuccess, onCancel }) {
           {activeProducts.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
-              {p.perishable ? ' ⏰' : ''}
+              {p.perishable ? ' (perecedero)' : ''}
               {p.categoryName ? ` · ${p.categoryName}` : ''}
             </option>
           ))}
@@ -284,7 +290,9 @@ export default function StockEntryForm({ onSuccess, onCancel }) {
       {selectedProduct && (
         <div className="ef-product-hint">
           <span className={`ef-perishable-tag ${isPerishable ? 'yes' : 'no'}`}>
-            {isPerishable ? '⏰ Perecedero — requiere vencimiento' : '✅ No perecedero'}
+            {isPerishable
+              ? <><FontAwesomeIcon icon={faAlarmClock} /> Perecedero — requiere vencimiento</>
+              : <><FontAwesomeIcon icon={faCircleCheck} /> No perecedero</>}
           </span>
           {selectedProduct.unitType && (
             <span className="ef-unit-tag">
@@ -306,7 +314,7 @@ export default function StockEntryForm({ onSuccess, onCancel }) {
           {activeSuppliers.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name}
-              {selectedProduct?.defaultSupplierId === s.id ? ' ★ (por defecto)' : ''}
+              {selectedProduct?.defaultSupplierId === s.id ? ' (por defecto)' : ''}
             </option>
           ))}
         </select>
@@ -426,7 +434,7 @@ export default function StockEntryForm({ onSuccess, onCancel }) {
         <button type="submit" className="ef-submit" disabled={isLoading}>
           {isLoading
             ? <><span className="ef-spinner" /> Registrando...</>
-            : '📦 Registrar ingreso'}
+            : <><FontAwesomeIcon icon={faInbox} /> Registrar ingreso</>}
         </button>
       </div>
 

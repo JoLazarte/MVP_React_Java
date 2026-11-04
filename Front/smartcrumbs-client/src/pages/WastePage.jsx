@@ -26,15 +26,38 @@ import { selectToken, selectUser }           from '../features/auth/authSlice';
 import { Modal, TableSkeleton }              from '../components/ui/CatalogUI';
 import WasteForm                             from '../components/waste/WasteForm';
 import AppTopbar                             from '../components/layout/AppTopbar';
+import { FontAwesomeIcon }                     from '@fortawesome/react-fontawesome';
+import {
+  faSkull,
+  faBurst,
+  faUtensils,
+  faTriangleExclamation,
+  faNoteSticky,
+  faTrashCanArrowUp,
+  faCalendarDays,
+  faCartFlatbed,
+  faRobot,
+  faRotateRight,
+  faXmark,
+  faSliders,
+  faChevronUp,
+  faChevronDown,
+  faFolderClosed,
+  faFolderOpen,
+  faCircleUser,
+  faListUl,
+  faMagnifyingGlassChart,
+  faMagnifyingGlass,
+} from '@fortawesome/free-solid-svg-icons';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const REASON_CONFIG = {
-  EXPIRED:              { label: 'Vencido',          color: '#C0392B', bg: 'rgba(192,57,43,0.09)',  icon: '💀' },
-  DAMAGED:              { label: 'Dañado / Roto',    color: '#E67E22', bg: 'rgba(230,126,34,0.09)', icon: '💥' },
-  INTERNAL_CONSUMPTION: { label: 'Consumo interno',  color: '#2980B9', bg: 'rgba(41,128,185,0.09)', icon: '🍽' },
-  QUALITY_ISSUE:        { label: 'Calidad',           color: '#8E44AD', bg: 'rgba(142,68,173,0.09)', icon: '⚠️' },
-  OTHER:                { label: 'Otro',              color: '#7F8C8D', bg: 'rgba(127,140,141,0.09)', icon: '📝' },
+  EXPIRED:              { label: 'Vencido',          color: '#C0392B', bg: 'rgba(192,57,43,0.09)',  icon: faSkull },
+  DAMAGED:              { label: 'Dañado / Roto',    color: '#E67E22', bg: 'rgba(230,126,34,0.09)', icon: faBurst },
+  INTERNAL_CONSUMPTION: { label: 'Consumo interno',  color: '#2980B9', bg: 'rgba(41,128,185,0.09)', icon: faUtensils },
+  QUALITY_ISSUE:        { label: 'Calidad',           color: '#8E44AD', bg: 'rgba(142,68,173,0.09)', icon: faTriangleExclamation },
+  OTHER:                { label: 'Otro',              color: '#7F8C8D', bg: 'rgba(127,140,141,0.09)', icon: faNoteSticky },
 };
 
 const QUICK_RANGES = [
@@ -74,7 +97,7 @@ function ReasonBadge({ reason }) {
       fontSize: '0.72rem', fontWeight: 700,
       color: cfg.color, background: cfg.bg, whiteSpace: 'nowrap',
     }}>
-      {cfg.icon} {cfg.label}
+      <FontAwesomeIcon icon={cfg.icon} /> {cfg.label}
     </span>
   );
 }
@@ -154,7 +177,7 @@ function WasteRow({ record, idx }) {
           {/* ── Badge automático — visible SOLO para registros del sistema ── */}
           {isAutomatic && (
             <div className="wr-auto-badge">
-              🗑️ DESCARTAR LOTE VENCIDO
+              <FontAwesomeIcon icon={faTrashCanArrowUp} /> DESCARTAR LOTE VENCIDO
             </div>
           )}
 
@@ -172,9 +195,9 @@ function WasteRow({ record, idx }) {
           </div>
 
           <div className="wr-bottom">
-            <span className="wr-date">📅 {formatDateTime(record.wasteDate)}</span>
+            <span className="wr-date"><FontAwesomeIcon icon={faCalendarDays} /> {formatDateTime(record.wasteDate)}</span>
             {record.supplierName && (
-              <span className="wr-supplier">🚚 {record.supplierName}</span>
+              <span className="wr-supplier"><FontAwesomeIcon icon={faCartFlatbed} /> {record.supplierName}</span>
             )}
             <span
               className="wr-loss"
@@ -183,7 +206,7 @@ function WasteRow({ record, idx }) {
               {formatARS(record.economicLoss)}
             </span>
             {isAutomatic ? (
-              <span className="wr-author-system">🤖 Sistema automático</span>
+              <span className="wr-author-system"><FontAwesomeIcon icon={faRobot} /> Sistema automático</span>
             ) : (
               <span className="wr-author">
                 <span className="wr-author-avatar">
@@ -226,7 +249,7 @@ function WasteRow({ record, idx }) {
               <span className="wrd-label">Registrado por</span>
               <span style={{ fontWeight: 600, color: isAutomatic ? '#C0392B' : 'var(--espresso)' }}>
                 {isAutomatic
-                  ? '🤖 Sistema automático'
+                  ? <><FontAwesomeIcon icon={faRobot} /> Sistema automático</>
                   : <>
                       {record.createdByName}
                       {record.createdById && (
@@ -240,7 +263,7 @@ function WasteRow({ record, idx }) {
             </div>
           </div>
           {record.notes && (
-            <p className="wrd-notes">📝 {record.notes}</p>
+            <p className="wrd-notes"><FontAwesomeIcon icon={faNoteSticky} /> {record.notes}</p>
           )}
         </div>
       )}
@@ -386,8 +409,8 @@ export default function WastePage() {
     const userItems = Object.values(
       filtered.reduce((map, r) => {
         const key  = r.createdById   || 'sistema';
-        const name = r.createdByName || '🤖 Sistema automático';
-        if (!map[key]) map[key] = { name, loss: 0, qty: 0, count: 0 };
+        const name = r.createdByName || 'Sistema automático';
+        if (!map[key]) map[key] = { name, isSystem: !r.createdByName, loss: 0, qty: 0, count: 0 };
         map[key].loss  += Number(r.economicLoss || 0);
         map[key].qty   += Number(r.quantity     || 0);
         map[key].count += 1;
@@ -415,7 +438,7 @@ export default function WastePage() {
         {/* ── Header ── */}
         <div className="wp-header">
           <div className="wp-header-text">
-            <h1 className="wp-title">🗑️ Mermas</h1>
+            <h1 className="wp-title"><FontAwesomeIcon icon={faTrashCanArrowUp} /> Mermas</h1>
             <p className="wp-sub">
               Descarte de productos · pérdidas económicas
               {listStatus === 'succeeded' && (
@@ -432,7 +455,7 @@ export default function WastePage() {
               title="Actualizar"
               style={{ animation: isLoading ? 'spin 0.8s linear infinite' : 'none' }}
             >
-              ↻
+              <FontAwesomeIcon icon={faRotateRight} />
             </button>
             <button className="wp-btn-new" onClick={() => setModalOpen(true)}>
               + Registrar merma
@@ -449,7 +472,7 @@ export default function WastePage() {
           ))}
           {hasFilters && (
             <button className="wp-range-chip clear" onClick={handleClearFilters}>
-              ✕ Limpiar filtros
+              <FontAwesomeIcon icon={faXmark} /> Limpiar filtros
             </button>
           )}
         </div>
@@ -461,16 +484,16 @@ export default function WastePage() {
             onClick={() => setFiltersOpen((v) => !v)}
             aria-expanded={filtersOpen}
           >
-            <span>🔧 Filtros avanzados</span>
+            <span><FontAwesomeIcon icon={faSliders} /> Filtros avanzados</span>
             {hasFilters && <span className="wp-filters-badge">activos</span>}
-            <span className="wp-filters-chevron">{filtersOpen ? '▲' : '▼'}</span>
+            <span className="wp-filters-chevron">{filtersOpen ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} />}</span>
           </button>
 
           {filtersOpen && (
             <div className="wp-filters-body">
               {/* Período */}
               <div className="wp-filter-group">
-                <span className="wp-filter-group-label">📅 Período</span>
+                <span className="wp-filter-group-label"><FontAwesomeIcon icon={faCalendarDays} /> Período</span>
                 <div className="wp-filter-row">
                   <div className="wp-filter-field">
                     <label className="wp-field-label">Desde</label>
@@ -493,7 +516,7 @@ export default function WastePage() {
 
               {/* Categoría */}
               <div className="wp-filter-group">
-                <span className="wp-filter-group-label">🗂 Categoría</span>
+                <span className="wp-filter-group-label"><FontAwesomeIcon icon={faFolderClosed} /> Categoría</span>
                 <select className="wp-select" value={filters.categoryId}
                   onChange={(e) => dispatch(setWasteFilters({ categoryId: e.target.value }))}>
                   <option value="">Todas las categorías</option>
@@ -503,7 +526,7 @@ export default function WastePage() {
 
               {/* Proveedor */}
               <div className="wp-filter-group">
-                <span className="wp-filter-group-label">🚚 Proveedor</span>
+                <span className="wp-filter-group-label"><FontAwesomeIcon icon={faCartFlatbed} /> Proveedor</span>
                 <select className="wp-select" value={filters.supplierId}
                   onChange={(e) => dispatch(setWasteFilters({ supplierId: e.target.value }))}>
                   <option value="">Todos los proveedores</option>
@@ -513,19 +536,19 @@ export default function WastePage() {
 
               {/* Motivo */}
               <div className="wp-filter-group">
-                <span className="wp-filter-group-label">⚠️ Motivo</span>
+                <span className="wp-filter-group-label"><FontAwesomeIcon icon={faTriangleExclamation} /> Motivo</span>
                 <select className="wp-select" value={filters.reason}
                   onChange={(e) => dispatch(setWasteFilters({ reason: e.target.value }))}>
                   <option value="">Todos los motivos</option>
                   {Object.entries(REASON_CONFIG).map(([val, cfg]) => (
-                    <option key={val} value={val}>{cfg.icon} {cfg.label}</option>
+                    <option key={val} value={val}>{cfg.label}</option>
                   ))}
                 </select>
               </div>
 
               {/* Registrado por */}
               <div className="wp-filter-group">
-                <span className="wp-filter-group-label">👤 Registrado por</span>
+                <span className="wp-filter-group-label"><FontAwesomeIcon icon={faCircleUser} /> Registrado por</span>
                 {isOwner ? (
                   <select className="wp-select" value={filters.createdById}
                     onChange={(e) => dispatch(setWasteFilters({ createdById: e.target.value }))}>
@@ -534,7 +557,7 @@ export default function WastePage() {
                     {wasteUsers.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.firstName} {u.lastName}
-                        {u.role === 'OWNER' ? ' 👑' : ' 👤'}
+                        {u.role === 'OWNER' ? ' · Dueño' : ' · Empleado'}
                         {u.enabled === false ? ' (inactivo)' : ''}
                       </option>
                     ))}
@@ -565,7 +588,7 @@ export default function WastePage() {
         </div>
 
         {/* ── Error ── */}
-        {listError && <div className="wp-error">⚠ {listError}</div>}
+        {listError && <div className="wp-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {listError}</div>}
 
         {/* ── Resumen económico ── */}
         {(listStatus === 'succeeded' || records.length > 0) && (
@@ -587,10 +610,10 @@ export default function WastePage() {
         {records.length > 0 && (
           <div className="wp-tabs">
             <button className={`wp-tab ${activeView === 'list'  ? 'active' : ''}`} onClick={() => setActiveView('list')}>
-              📋 Lista
+              <FontAwesomeIcon icon={faListUl} /> Lista
             </button>
             <button className={`wp-tab ${activeView === 'stats' ? 'active' : ''}`} onClick={() => setActiveView('stats')}>
-              📊 Estadísticas
+              <FontAwesomeIcon icon={faMagnifyingGlassChart} /> Estadísticas
             </button>
           </div>
         )}
@@ -602,14 +625,14 @@ export default function WastePage() {
           <>
             {records.length > 0 && (
               <div className="wp-search-wrap">
-                <span className="wp-search-icon">🔍</span>
+                <span className="wp-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
                 <input className="wp-search"
                   placeholder="Buscar por producto, categoría, proveedor, usuario..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
                 {search && (
-                  <button className="wp-search-clear" onClick={() => setSearch('')}>✕</button>
+                  <button className="wp-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
                 )}
               </div>
             )}
@@ -618,7 +641,7 @@ export default function WastePage() {
 
             {!isLoading && records.length === 0 && (
               <div className="wp-empty-cta">
-                <span className="wp-empty-icon">🗑️</span>
+                <span className="wp-empty-icon"><FontAwesomeIcon icon={faTrashCanArrowUp} /></span>
                 <h3 className="wp-empty-title">Sin mermas registradas</h3>
                 <p className="wp-empty-desc">
                   Registrá los productos vencidos, dañados o descartados
@@ -633,7 +656,7 @@ export default function WastePage() {
 
             {!isLoading && records.length > 0 && filtered.length === 0 && (
               <div className="wp-empty-search">
-                <span>🔍</span>
+                <span><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
                 <p>Sin resultados para "<strong>{search}</strong>"</p>
                 <button className="wp-btn-reset" onClick={() => setSearch('')}>
                   Limpiar búsqueda
@@ -664,28 +687,28 @@ export default function WastePage() {
         {activeView === 'stats' && records.length > 0 && (
           <div className="wp-stats">
             <div className="wp-stats-card">
-              <h3 className="wp-stats-title">📂 Pérdidas por categoría</h3>
+              <h3 className="wp-stats-title"><FontAwesomeIcon icon={faFolderOpen} /> Pérdidas por categoría</h3>
               <BreakdownBar items={stats.catItems} total={stats.totalLoss}
                 colorFn={(i) => CAT_COLORS[i % CAT_COLORS.length]} />
             </div>
             <div className="wp-stats-card">
-              <h3 className="wp-stats-title">🚚 Pérdidas por proveedor</h3>
+              <h3 className="wp-stats-title"><FontAwesomeIcon icon={faCartFlatbed} /> Pérdidas por proveedor</h3>
               <BreakdownBar items={stats.suppItems} total={stats.totalLoss}
                 colorFn={(i) => SUPP_COLORS[i % SUPP_COLORS.length]} />
             </div>
             <div className="wp-stats-card">
-              <h3 className="wp-stats-title">⚠️ Pérdidas por motivo</h3>
+              <h3 className="wp-stats-title"><FontAwesomeIcon icon={faTriangleExclamation} /> Pérdidas por motivo</h3>
               <BreakdownBar items={stats.reasonItems} total={stats.totalLoss}
                 colorFn={(i) => Object.values(REASON_CONFIG)[i % 5]?.color || '#888'} />
             </div>
             <div className="wp-stats-card">
-              <h3 className="wp-stats-title">👤 Registros por usuario / sistema</h3>
+              <h3 className="wp-stats-title"><FontAwesomeIcon icon={faCircleUser} /> Registros por usuario / sistema</h3>
               <div className="user-stats-list">
                 {stats.userItems.map((u, i) => (
                   <div key={i} className="user-stat-row">
                     <div className="user-stat-avatar"
                       style={{ background: USER_COLORS[i % USER_COLORS.length] }}>
-                      {u.name.charAt(0).toUpperCase()}
+                      {u.isSystem ? <FontAwesomeIcon icon={faRobot} /> : u.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="user-stat-info">
                       <span className="user-stat-name">{u.name}</span>
@@ -846,7 +869,7 @@ export default function WastePage() {
         .wp-tab.active { background: white; color: var(--espresso); box-shadow: var(--shadow-sm); }
 
         .wp-search-wrap { position: relative; }
-        .wp-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+        .wp-search-icon { color: var(--warm-gray); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
         .wp-search {
           width: 100%; padding: 10px 36px; box-sizing: border-box;
           font-family: var(--font-body); font-size: 0.88rem;

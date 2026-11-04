@@ -1,5 +1,14 @@
 // Shared UI primitives used across Products & Categories pages
 import { useEffect, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faWheatAwn,
+  faGlobe,
+  faInbox,
+  faPenToSquare,
+  faTrashCan,
+  faPlus,
+} from '@fortawesome/free-solid-svg-icons';
 
 /* ─── Modal ──────────────────────────────────────────────────────────────────*/
 export function Modal({ isOpen, onClose, title, children, width = '520px' }) {
@@ -179,7 +188,9 @@ export function OriginBadge({ origin }) {
   const isFranchise = origin === 'FRANCHISE';
   return (
     <span className={`origin-badge ${isFranchise ? 'franchise' : 'external'}`}>
-      {isFranchise ? '🏷 Franquicia' : '🌐 Externo'}
+      {isFranchise
+        ? <><FontAwesomeIcon icon={faWheatAwn} /> Franquicia</>
+        : <><FontAwesomeIcon icon={faGlobe} /> Externo</>}
       <style>{`
         .origin-badge {
           display: inline-flex; align-items: center; gap: 4px;
@@ -194,7 +205,7 @@ export function OriginBadge({ origin }) {
 }
 
 /* ─── Empty State ────────────────────────────────────────────────────────────*/
-export function EmptyState({ icon = '📭', title, description, action }) {
+export function EmptyState({ icon = <FontAwesomeIcon icon={faInbox} />, title, description, action }) {
   return (
     <div className="empty-state">
       <span className="es-icon">{icon}</span>
@@ -282,9 +293,9 @@ export function FilterBar({ children }) {
 /* ─── Small action button ────────────────────────────────────────────────────*/
 export function ActionBtn({ onClick, variant = 'edit', title, disabled }) {
   const configs = {
-    edit:   { color: 'var(--amber)',  bg: 'rgba(200,137,58,0.10)', icon: '✏️' },
-    delete: { color: 'var(--error)',  bg: 'rgba(192,57,43,0.08)',  icon: '🗑' },
-    add:    { color: 'white',         bg: 'var(--espresso)',       icon: '+' },
+    edit:   { color: 'var(--amber)',  bg: 'rgba(200,137,58,0.10)', icon: faPenToSquare },
+    delete: { color: 'var(--error)',  bg: 'rgba(192,57,43,0.08)',  icon: faTrashCan },
+    add:    { color: 'white',         bg: 'var(--espresso)',       icon: faPlus },
   };
   const c = configs[variant] || configs.edit;
   return (
@@ -295,7 +306,7 @@ export function ActionBtn({ onClick, variant = 'edit', title, disabled }) {
       className="action-btn"
       style={{ '--ab-color': c.color, '--ab-bg': c.bg }}
     >
-      {c.icon}
+      <FontAwesomeIcon icon={c.icon} />
       <style>{`
         .action-btn {
           width: 32px; height: 32px;

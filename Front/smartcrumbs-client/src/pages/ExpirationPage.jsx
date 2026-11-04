@@ -27,6 +27,21 @@ import {
 import { selectToken, selectUser } from '../features/auth/authSlice';
 import { ConfirmDialog, TableSkeleton, Modal } from '../components/ui/CatalogUI';
 import StockSaleForm from '../components/stock/StockSaleForm';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faSkull,
+  faCircle,
+  faBan,
+  faCashRegister,
+  faCalendarDays,
+  faTags,
+  faAlarmClock,
+  faCircleCheck,
+  faRotateRight,
+  faTriangleExclamation,
+  faMagnifyingGlass,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import AppTopbar from '../components/layout/AppTopbar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -34,10 +49,10 @@ import AppTopbar from '../components/layout/AppTopbar';
 const isOwner = (user) => user?.role === 'OWNER';
 
 const STATUS_CONFIG = {
-  EXPIRED: { label: 'Vencido',        color: '#C0392B', bg: 'rgba(192,57,43,0.10)',  icon: '💀', order: 0 },
-  RED:     { label: 'Vence hoy',      color: '#E74C3C', bg: 'rgba(231,76,60,0.10)',  icon: '🔴', order: 1 },
-  YELLOW:  { label: 'Vence pronto',   color: '#D68910', bg: 'rgba(214,137,16,0.10)', icon: '🟡', order: 2 },
-  GREEN:   { label: 'En buen estado', color: '#1E8449', bg: 'rgba(30,132,73,0.10)',  icon: '🟢', order: 3 },
+  EXPIRED: { label: 'Vencido',        color: '#C0392B', bg: 'rgba(192,57,43,0.10)',  icon: faSkull, order: 0 },
+  RED:     { label: 'Vence hoy',      color: '#E74C3C', bg: 'rgba(231,76,60,0.10)',  icon: faCircle, order: 1 },
+  YELLOW:  { label: 'Vence pronto',   color: '#D68910', bg: 'rgba(214,137,16,0.10)', icon: faCircle, order: 2 },
+  GREEN:   { label: 'En buen estado', color: '#1E8449', bg: 'rgba(30,132,73,0.10)',  icon: faCircle, order: 3 },
 };
 
 const STATUS_ORDER = { EXPIRED: 0, RED: 1, YELLOW: 2, GREEN: 3 };
@@ -67,7 +82,7 @@ function StatusPill({ status }) {
       fontSize: '0.72rem', fontWeight: 700,
       color: cfg.color, background: cfg.bg, whiteSpace: 'nowrap',
     }}>
-      {cfg.icon} {cfg.label}
+      <FontAwesomeIcon icon={cfg.icon} /> {cfg.label}
     </span>
   );
 }
@@ -162,7 +177,7 @@ function ProductBatchCard({
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span className="exp-group-name">{productName}</span>
               {!isProductActive && (
-                <span className="exp-inactive-badge">🚫 Retirado de la venta</span>
+                <span className="exp-inactive-badge"><FontAwesomeIcon icon={faBan} /> Retirado de la venta</span>
               )}
               {totalBatchesCount > 1 && (
                 <span className="exp-more-batches">
@@ -182,7 +197,7 @@ function ProductBatchCard({
             onClick={() => onSale({ productId, productName })}
             title="Registrar venta de este producto"
           >
-            🛒 Registrar venta
+            <FontAwesomeIcon icon={faCashRegister} /> Registrar venta
           </button>
         </div>
       </div>
@@ -192,7 +207,7 @@ function ProductBatchCard({
           <div className="exp-batch-left">
             <StatusPill status={displayBatch.status} />
             <span className="exp-batch-date">
-              📅 {displayBatch.expirationDate
+              <FontAwesomeIcon icon={faCalendarDays} /> {displayBatch.expirationDate
                 ? new Date(displayBatch.expirationDate + 'T00:00:00').toLocaleDateString('es-AR', {
                     day: '2-digit', month: 'short', year: 'numeric',
                   })
@@ -217,7 +232,7 @@ function ProductBatchCard({
                 onClick={() => onPromo(displayBatch, activePromo)}
                 title="Ver promoción activa para este lote"
               >
-                🏷️ Ver promo
+                <FontAwesomeIcon icon={faTags} /> Ver promo
               </button>
             ) : (
               isOwnerUser && hasUrgent && isProductActive && (
@@ -226,7 +241,7 @@ function ProductBatchCard({
                   onClick={() => onPromo(displayBatch, null)}
                   title="Crear promoción para este lote"
                 >
-                  🏷️ Activar promo
+                  <FontAwesomeIcon icon={faTags} /> Activar promo
                 </button>
               )
             )}
@@ -321,7 +336,7 @@ export default function ExpirationPage() {
 
         const plural = toProcess.length !== 1;
         setAutoWasteToast(
-          `✅ ${toProcess.length} lote${plural ? 's' : ''} vencido${plural ? 's' : ''} descartado${plural ? 's' : ''} automáticamente.`
+          `${toProcess.length} lote${plural ? 's' : ''} vencido${plural ? 's' : ''} descartado${plural ? 's' : ''} automáticamente.`
         );
         setTimeout(() => setAutoWasteToast(''), 5000);
       } finally {
@@ -414,7 +429,7 @@ export default function ExpirationPage() {
       <div className="exp-content">
         <div className="exp-header">
           <div>
-            <h1 className="exp-title">⏰ Vencimientos</h1>
+            <h1 className="exp-title"><FontAwesomeIcon icon={faAlarmClock} /> Vencimientos</h1>
             <p className="exp-subtitle">
               Lote más próximo a vencer por producto
               {status === 'succeeded' && ` · ${groupedProducts.length} producto${groupedProducts.length !== 1 ? 's' : ''}`}
@@ -433,13 +448,13 @@ export default function ExpirationPage() {
             disabled={status === 'loading' || autoWasteRunning}
             title="Actualizar"
           >
-            <span className={(status === 'loading' || autoWasteRunning) ? 'spin' : ''}>↻</span>
+            <span className={(status === 'loading' || autoWasteRunning) ? 'spin' : ''}><FontAwesomeIcon icon={faRotateRight} /></span>
             <span className="hide-sm">Actualizar</span>
           </button>
         </div>
 
         {autoWasteToast && (
-          <div className="exp-auto-toast">{autoWasteToast}</div>
+          <div className="exp-auto-toast"><FontAwesomeIcon icon={faCircleCheck} /> {autoWasteToast}</div>
         )}
 
         {autoWasteRunning && (
@@ -449,7 +464,7 @@ export default function ExpirationPage() {
           </div>
         )}
 
-        {fetchErr && <div className="exp-error">⚠ {fetchErr}</div>}
+        {fetchErr && <div className="exp-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {fetchErr}</div>}
         {status === 'loading' && <TableSkeleton rows={6} />}
 
         {status === 'succeeded' && (
@@ -463,7 +478,7 @@ export default function ExpirationPage() {
         {status === 'succeeded' && items.length > 0 && (
           <div className="exp-controls">
             <div className="exp-search-wrap">
-              <span className="exp-search-icon">🔍</span>
+              <span className="exp-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
               <input
                 className="exp-search"
                 placeholder="Buscar producto..."
@@ -471,7 +486,7 @@ export default function ExpirationPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
               {search && (
-                <button className="exp-search-clear" onClick={() => setSearch('')}>✕</button>
+                <button className="exp-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
               )}
             </div>
           </div>
@@ -480,7 +495,7 @@ export default function ExpirationPage() {
         {status === 'succeeded' && groupedProducts.length === 0 && (
           <div className="exp-empty">
             <span className="exp-empty-icon">
-              {activeFilter === 'ALL' ? '✅' : STATUS_CONFIG[activeFilter]?.icon || '🔍'}
+              <FontAwesomeIcon icon={activeFilter === 'ALL' ? faCircleCheck : STATUS_CONFIG[activeFilter]?.icon || faMagnifyingGlass} />
             </span>
             <p className="exp-empty-title">
               {activeFilter === 'ALL' && !search
@@ -598,7 +613,7 @@ export default function ExpirationPage() {
 
         .exp-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: var(--space-lg); }
         .exp-search-wrap { position: relative; max-width: 400px; }
-        .exp-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+        .exp-search-icon { color: var(--warm-gray); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
         .exp-search {
           width: 100%; padding: 9px 36px;
           font-family: var(--font-body); font-size: 0.88rem;

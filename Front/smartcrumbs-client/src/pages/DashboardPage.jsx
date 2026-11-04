@@ -22,29 +22,43 @@ import {
   selectSuggestionsStatus,
   clearPromotionsState,
 } from '../features/promotions/promotionsSlice';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCookieBite,
+  faTrashCanArrowUp,
+  faAlarmClock,
+  faTags,
+  faPlateWheat,
+  faFolderClosed,
+  faCartFlatbed,
+  faBagShopping,
+  faChartSimple,
+  faCrown,
+  faCircleUser,
+} from '@fortawesome/free-solid-svg-icons';
 import AppTopbar from '../components/layout/AppTopbar';
 
 const roleLabels = {
-  OWNER:    { label: 'Dueño / Encargado', color: '#A06C28', bg: 'rgba(200,137,58,0.12)', icon: '👑' },
-  EMPLOYEE: { label: 'Empleado/a',        color: '#2E7D32', bg: 'rgba(46,125,50,0.10)',  icon: '👤' },
+  OWNER:    { label: 'Dueño / Encargado', color: '#A06C28', bg: 'rgba(200,137,58,0.12)', icon: faCrown },
+  EMPLOYEE: { label: 'Empleado/a',        color: '#A06C28', bg: 'rgba(200,137,58,0.12)',  icon: faCircleUser },
 };
 
 const MAIN_MODULES = [
-  { icon: '📦', title: 'Stock',        desc: 'Inventario, lotes e ingresos',           to: '/stock'      },
-  { icon: '🗑️', title: 'Mermas',       desc: 'Registro de descartes y desperdicios',   to: '/waste'      },
-  { icon: '⏰', title: 'Vencimientos', desc: 'Semáforo de fechas de vencimiento',      to: '/expiration' },
-  { icon: '🏷️', title: 'Promociones',  desc: 'Descuentos sobre lotes próximos a vencer', to: '/promotions' },
+  { icon: faCookieBite, title: 'Stock',        desc: 'Inventario, lotes e ingresos',           to: '/stock'      },
+  { icon: faTrashCanArrowUp, title: 'Mermas',       desc: 'Registro de descartes y desperdicios',   to: '/waste'      },
+  { icon: faAlarmClock, title: 'Vencimientos', desc: 'Semáforo de fechas de vencimiento',      to: '/expiration' },
+  { icon: faTags, title: 'Promociones',  desc: 'Descuentos sobre lotes próximos a vencer', to: '/promotions' },
 ];
 
 const CATALOG_MODULES = [
-  { icon: '🥐', title: 'Productos',   desc: 'Catálogo de franquicia y externos',     to: '/products'   },
-  { icon: '🗂',  title: 'Categorías',  desc: 'Grupos y clasificaciones',              to: '/categories' },
-  { icon: '🚚', title: 'Proveedores', desc: 'Franquicia, mayoristas y externos',     to: '/suppliers'  },
+  { icon: faPlateWheat, title: 'Productos',   desc: 'Catálogo de franquicia y externos',     to: '/products'   },
+  { icon: faFolderClosed,  title: 'Categorías',  desc: 'Grupos y clasificaciones',              to: '/categories' },
+  { icon: faCartFlatbed, title: 'Proveedores', desc: 'Franquicia, mayoristas y externos',     to: '/suppliers'  },
 ];
 
 const OWNER_MODULES = [
-  { icon: '🛒', title: 'Reposición', desc: 'Productos con stock por debajo del mínimo', to: '/restock' },
-  { icon: '📊', title: 'Reportes',   desc: 'Mermas, ventas y balance de stock', to: '/reports' },
+  { icon: faBagShopping, title: 'Reposición', desc: 'Productos con stock por debajo del mínimo', to: '/restock' },
+  { icon: faChartSimple, title: 'Reportes',   desc: 'Mermas, ventas y balance de stock', to: '/reports' },
 ];
 
 export default function DashboardPage() {
@@ -123,7 +137,7 @@ export default function DashboardPage() {
             <h1 className="welcome-title">¡Hola, {user?.firstName || user?.username}!</h1>
             <p className="welcome-sub">Bienvenido/a a tu panel de gestión</p>
             <span className="role-badge" style={{ color: role.color, background: role.bg }}>
-              {role.icon} {role.label}
+              <FontAwesomeIcon icon={role.icon} /> {role.label}
             </span>
           </div>
         </div>
@@ -135,7 +149,9 @@ export default function DashboardPage() {
           style={{ '--sem-color': semColor }}
         >
           <div className="sem-left">
-            <div className="sem-icon-wrap" style={{ background: semColor }}>⏰</div>
+            <div className="sem-icon-wrap" style={{ background: semColor }}>
+              <FontAwesomeIcon icon={faAlarmClock} />
+            </div>
             <div>
               <p className="sem-title">Estado de vencimientos</p>
               <p className="sem-sub">
@@ -173,7 +189,9 @@ export default function DashboardPage() {
           style={{ '--promo-color': promoColor }}
         >
           <div className="promo-dash-left">
-            <div className="promo-dash-icon" style={{ background: promoColor }}>🏷️</div>
+            <div className="promo-dash-icon" style={{ background: promoColor }}>
+              <FontAwesomeIcon icon={faTags} />
+            </div>
             <div>
               <p className="promo-dash-title">Promociones de venta</p>
               <p className="promo-dash-sub">{promoSubtext}</p>
@@ -206,7 +224,7 @@ export default function DashboardPage() {
           >
             <div className="rst-left">
               <div className="rst-icon-wrap" style={{ background: restockCount > 0 ? '#E67E22' : '#27AE60' }}>
-                🛒
+                <FontAwesomeIcon icon={faBagShopping} />
               </div>
               <div>
                 <p className="rst-title">Reposición de stock</p>
@@ -239,7 +257,7 @@ export default function DashboardPage() {
           <div className="modules-grid">
             {MAIN_MODULES.map((m) => (
               <button key={m.title} className="module-card ready" onClick={() => navigate(m.to)}>
-                <span className="module-icon">{m.icon}</span>
+                <span className="module-icon"><FontAwesomeIcon icon={m.icon} /></span>
                 <div className="module-text">
                   <p className="module-title">{m.title}</p>
                   <p className="module-desc">{m.desc}</p>
@@ -267,7 +285,7 @@ export default function DashboardPage() {
             <div className="modules-grid">
               {OWNER_MODULES.map((m) => (
                 <button key={m.title} className="module-card ready owner-module" onClick={() => navigate(m.to)}>
-                  <span className="module-icon">{m.icon}</span>
+                  <span className="module-icon"><FontAwesomeIcon icon={m.icon} /></span>
                   <div className="module-text">
                     <p className="module-title">{m.title}</p>
                     <p className="module-desc">{m.desc}</p>
@@ -288,7 +306,7 @@ export default function DashboardPage() {
           <div className="modules-grid">
             {CATALOG_MODULES.map((m) => (
               <button key={m.title} className="module-card ready" onClick={() => navigate(m.to)}>
-                <span className="module-icon">{m.icon}</span>
+                <span className="module-icon"><FontAwesomeIcon icon={m.icon} /></span>
                 <div className="module-text">
                   <p className="module-title">{m.title}</p>
                   <p className="module-desc">{m.desc}</p>
@@ -317,7 +335,7 @@ export default function DashboardPage() {
             </div>
             <div className="info-item">
               <span className="info-label">Rol</span>
-              <span className="info-value">{role.icon} {role.label}</span>
+              <span className="info-value"><FontAwesomeIcon icon={role.icon} /> {role.label}</span>
             </div>
           </div>
         </div>
@@ -378,7 +396,7 @@ export default function DashboardPage() {
           flex: 1; min-width: 0;
         }
         .sem-icon-wrap {
-          width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+          color: white; width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
           display: flex; align-items: center; justify-content: center;
           font-size: 1.25rem;
         }
@@ -414,7 +432,7 @@ export default function DashboardPage() {
         .promo-dash-card:active { transform: translateY(0); }
         .promo-dash-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
         .promo-dash-icon {
-          width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+          color: white; width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
           display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
         }
         .promo-dash-title { font-weight: 700; font-size: 0.94rem; color: var(--espresso); margin-bottom: 2px; }
@@ -451,7 +469,7 @@ export default function DashboardPage() {
         .restock-card:active { transform: translateY(0); }
         .rst-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
         .rst-icon-wrap {
-          width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+          color: white; width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
           display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
         }
         .rst-title { font-weight: 700; font-size: 0.94rem; color: var(--espresso); margin-bottom: 2px; }
@@ -515,7 +533,12 @@ export default function DashboardPage() {
         .module-card.ready:active { transform: translateY(0); }
         .module-card.soon  { opacity: 0.5; cursor: not-allowed; }
 
-        .module-icon  { font-size: 1.4rem; flex-shrink: 0; }
+        .module-icon  {
+          font-size: 1.4rem; flex-shrink: 0;
+          width: 32px; text-align: center;
+          color: var(--espresso);
+        }
+        .module-card.ready:hover .module-icon { color: var(--amber); }
         .module-text  { flex: 1; min-width: 0; }
         .module-title { font-weight: 600; font-size: 0.94rem; color: var(--espresso); margin-bottom: 2px; }
         .module-desc  { font-size: 0.78rem; color: var(--warm-gray); }

@@ -10,26 +10,40 @@ import {
 import { fetchProducts, selectProducts } from '../features/catalog/productsSlice';
 import { selectToken } from '../features/auth/authSlice';
 import { EmptyState, SectionHeader, FilterBar, TableSkeleton } from '../components/ui/CatalogUI';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faInbox,
+  faReceipt,
+  faTrashCanArrowUp,
+  faPlus,
+  faMinus,
+  faCircle,
+  faClockRotateLeft,
+  faCircleUser,
+  faRobot,
+  faTriangleExclamation,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import AppTopbar from '../components/layout/AppTopbar';
 import { formatQty, formatARS, formatDateTime, toISODate } from '../utils/format';
 
 const TYPE_CONFIG = {
-  ENTRY:          { label: 'Ingreso',  icon: '📥', color: '#1E8449', bg: 'rgba(30,132,73,0.10)',   sign: '+' },
-  SALE:           { label: 'Venta',    icon: '🧾', color: '#2563A8', bg: 'rgba(37,99,168,0.10)',   sign: '−' },
-  WASTE:          { label: 'Merma',    icon: '🗑️', color: '#C0392B', bg: 'rgba(192,57,43,0.10)',   sign: '−' },
-  ADJUSTMENT_IN:  { label: 'Ajuste +', icon: '➕', color: '#7D5BA6', bg: 'rgba(125,91,166,0.10)',  sign: '+' },
-  ADJUSTMENT_OUT: { label: 'Ajuste −', icon: '➖', color: '#B9770E', bg: 'rgba(185,119,14,0.10)',  sign: '−' },
+  ENTRY:          { label: 'Ingreso',  icon: faInbox, color: '#1E8449', bg: 'rgba(30,132,73,0.10)',   sign: '+' },
+  SALE:           { label: 'Venta',    icon: faReceipt, color: '#2563A8', bg: 'rgba(37,99,168,0.10)',   sign: '−' },
+  WASTE:          { label: 'Merma',    icon: faTrashCanArrowUp, color: '#C0392B', bg: 'rgba(192,57,43,0.10)',   sign: '−' },
+  ADJUSTMENT_IN:  { label: 'Ajuste +', icon: faPlus, color: '#7D5BA6', bg: 'rgba(125,91,166,0.10)',  sign: '+' },
+  ADJUSTMENT_OUT: { label: 'Ajuste −', icon: faMinus, color: '#B9770E', bg: 'rgba(185,119,14,0.10)',  sign: '−' },
 };
 
-const FALLBACK_CONFIG = { label: 'Movimiento', icon: '•', color: '#8C7B6B', bg: 'rgba(140,123,107,0.10)', sign: '' };
+const FALLBACK_CONFIG = { label: 'Movimiento', icon: faCircle, color: '#8C7B6B', bg: 'rgba(140,123,107,0.10)', sign: '' };
 
 const TYPE_OPTIONS = [
   { value: '',               label: 'Todos los tipos' },
-  { value: 'ENTRY',          label: '📥 Ingresos' },
-  { value: 'SALE',           label: '🧾 Ventas' },
-  { value: 'WASTE',          label: '🗑️ Mermas' },
-  { value: 'ADJUSTMENT_IN',  label: '➕ Ajustes (suman)' },
-  { value: 'ADJUSTMENT_OUT', label: '➖ Ajustes (restan)' },
+  { value: 'ENTRY',          label: 'Ingresos' },
+  { value: 'SALE',           label: 'Ventas' },
+  { value: 'WASTE',          label: 'Mermas' },
+  { value: 'ADJUSTMENT_IN',  label: 'Ajustes (suman)' },
+  { value: 'ADJUSTMENT_OUT', label: 'Ajustes (restan)' },
 ];
 
 const PAGE_SIZE = 50;
@@ -152,20 +166,20 @@ export default function MovementsPage() {
           {batchId && (
             <span className="mv-chip">
               Lote #{batchId}
-              <button type="button" aria-label="Quitar filtro de lote" onClick={clearBatch}>✕</button>
+              <button type="button" aria-label="Quitar filtro de lote" onClick={clearBatch}><FontAwesomeIcon icon={faXmark} /></button>
             </span>
           )}
           <button type="button" className="mv-link" onClick={resetFilters}>Restablecer filtros</button>
         </div>
 
-        {rangeError && <div className="mv-error">⚠ {rangeError}</div>}
-        {error && !rangeError && <div className="mv-error">⚠ {error}</div>}
+        {rangeError && <div className="mv-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {rangeError}</div>}
+        {error && !rangeError && <div className="mv-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {error}</div>}
 
         {isLoading && <TableSkeleton rows={6} />}
 
         {!isLoading && status === 'succeeded' && items.length === 0 && (
           <EmptyState
-            icon="📜"
+            icon={<FontAwesomeIcon icon={faClockRotateLeft} />}
             title="No hay movimientos con estos filtros"
             description="Probá ampliando el rango de fechas o quitando algún filtro."
             action={<button type="button" className="mv-btn" onClick={resetFilters}>Restablecer filtros</button>}
@@ -179,7 +193,7 @@ export default function MovementsPage() {
                 const cfg = TYPE_CONFIG[m.movementType] || FALLBACK_CONFIG;
                 return (
                   <div key={m.id} className="mv-row" style={{ animationDelay: `${Math.min(i, 12) * 0.03}s` }}>
-                    <div className="mv-icon" style={{ background: cfg.bg, color: cfg.color }}>{cfg.icon}</div>
+                    <div className="mv-icon" style={{ background: cfg.bg, color: cfg.color }}><FontAwesomeIcon icon={cfg.icon} /></div>
 
                     <div className="mv-body">
                       <div className="mv-top">
@@ -193,7 +207,7 @@ export default function MovementsPage() {
                         <span className="mv-pill" style={{ background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
                         {m.batchId != null && <span>Lote #{m.batchId}</span>}
                         <span>{formatDateTime(m.movementDate)}</span>
-                        <span>👤 {whoDid(m)}</span>
+                        <span><FontAwesomeIcon icon={m.userName || m.userId != null ? faCircleUser : faRobot} /> {whoDid(m)}</span>
                         {m.movementType === 'SALE' && m.unitSalePrice != null && (
                           <span>{formatARS(m.unitSalePrice)} c/u</span>
                         )}

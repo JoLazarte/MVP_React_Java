@@ -1,4 +1,11 @@
 import { useEffect, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faTrashCanArrowUp,
+  faCircleInfo,
+  faCookieBite,
+  faSkull,
+} from '@fortawesome/free-solid-svg-icons';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -64,7 +71,7 @@ export default function AutoWasteModal({ onDismiss }) {
         {/* ── Header ── */}
         <div className="awm-header">
           <div className="awm-icon-wrap">
-            <span className="awm-icon" role="img" aria-label="descarte automático">🗑️</span>
+            <span className="awm-icon" role="img" aria-label="descarte automático"><FontAwesomeIcon icon={faTrashCanArrowUp} /></span>
           </div>
           <div className="awm-header-text">
             <h2 className="awm-title" id="awm-title">
@@ -90,7 +97,7 @@ export default function AutoWasteModal({ onDismiss }) {
 
         {/* ── Info banner ── */}
         <div className="awm-info-banner">
-          <span aria-hidden="true">ℹ️</span>
+          <span aria-hidden="true"><FontAwesomeIcon icon={faCircleInfo} /></span>
           <p>
             Estos lotes fueron dados de baja automáticamente. Por favor
             <strong> retiralos físicamente</strong> del mostrador o depósito
@@ -112,7 +119,7 @@ export default function AutoWasteModal({ onDismiss }) {
                   <span className="awm-batch-name">{batch.productName}</span>
                   <div className="awm-batch-meta">
                     <span className="awm-batch-chip awm-chip--qty">
-                      📦 {Number(batch.quantity).toLocaleString('es-AR')} u. descartadas
+                      <FontAwesomeIcon icon={faCookieBite} /> {Number(batch.quantity).toLocaleString('es-AR')} u. descartadas
                     </span>
                     <span className="awm-batch-chip awm-chip--id">
                       Lote #{batch.batchId}
@@ -124,7 +131,7 @@ export default function AutoWasteModal({ onDismiss }) {
                     )}
                   </div>
                 </div>
-                <span className="awm-batch-icon" aria-hidden="true">💀</span>
+                <span className="awm-batch-icon" aria-hidden="true"><FontAwesomeIcon icon={faSkull} /></span>
               </div>
             ))}
           </div>
@@ -237,7 +244,7 @@ export default function AutoWasteModal({ onDismiss }) {
           justify-content: center;
           flex-shrink: 0;
         }
-        .awm-icon { font-size: 1.25rem; line-height: 1; }
+        .awm-icon { font-size: 1.25rem; line-height: 1; color: #C0392B; }
 
         .awm-header-text { flex: 1; min-width: 0; }
         .awm-title {
@@ -378,6 +385,7 @@ export default function AutoWasteModal({ onDismiss }) {
           font-size: 1.1rem;
           flex-shrink: 0;
           opacity: 0.7;
+          color: #C0392B;
         }
 
         /* ── Totalizador ── */

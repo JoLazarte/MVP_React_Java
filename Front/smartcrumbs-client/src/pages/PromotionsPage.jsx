@@ -26,6 +26,29 @@ import {
 import { fetchProducts, selectProducts } from '../features/catalog/productsSlice';
 import { selectToken, selectUser } from '../features/auth/authSlice';
 import { Modal, ConfirmDialog, TableSkeleton } from '../components/ui/CatalogUI';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCircle,
+  faCircleMinus,
+  faCircleCheck,
+  faCirclePlus,
+  faBan,
+  faAlarmClock,
+  faCookieBite,
+  faCalendarDays,
+  faTags,
+  faRobot,
+  faPiggyBank,
+  faCircleInfo,
+  faBolt,
+  faListUl,
+  faRotateRight,
+  faTriangleExclamation,
+  faMagnifyingGlass,
+  faXmark,
+  faChevronUp,
+  faChevronDown,
+} from '@fortawesome/free-solid-svg-icons';
 import AppTopbar from '../components/layout/AppTopbar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -33,16 +56,16 @@ import AppTopbar from '../components/layout/AppTopbar';
 const isOwner = (user) => user?.role === 'OWNER';
 
 const PROMOTION_STATUS_CONFIG = {
-  ACTIVE:    { label: 'Activa',    color: '#2E7D32', bg: 'rgba(46,125,50,0.10)',    icon: '✅' },
-  CANCELLED: { label: 'Cancelada', color: '#C0392B', bg: 'rgba(192,57,43,0.10)',   icon: '🚫' },
-  EXPIRED:   { label: 'Vencida',   color: '#8C7B6B', bg: 'rgba(140,123,107,0.10)', icon: '⏰' },
+  ACTIVE:    { label: 'Activa',    color: '#2E7D32', bg: 'rgba(46,125,50,0.10)',    icon: faCircleCheck },
+  CANCELLED: { label: 'Cancelada', color: '#C0392B', bg: 'rgba(192,57,43,0.10)',   icon: faBan },
+  EXPIRED:   { label: 'Vencida',   color: '#8C7B6B', bg: 'rgba(140,123,107,0.10)', icon: faAlarmClock },
 };
 
 const EXPIRATION_STATUS_CONFIG = {
-  RED:            { color: '#E74C3C', icon: '🔴', label: 'Vence hoy'    },
-  YELLOW:         { color: '#D68910', icon: '🟡', label: 'Vence pronto' },
-  GREEN:          { color: '#1E8449', icon: '🟢', label: 'En buen estado' },
-  NOT_APPLICABLE: { color: '#8C7B6B', icon: '⚪', label: 'Sin vencimiento' },
+  RED:            { color: '#E74C3C', icon: faCircle, label: 'Vence hoy'    },
+  YELLOW:         { color: '#D68910', icon: faCircle, label: 'Vence pronto' },
+  GREEN:          { color: '#1E8449', icon: faCircle, label: 'En buen estado' },
+  NOT_APPLICABLE: { color: '#8C7B6B', icon: faCircleMinus, label: 'Sin vencimiento' },
 };
 
 const DISCOUNT_TYPE_LABELS = {
@@ -156,7 +179,7 @@ function StatusBadge({ status }) {
       fontSize: '0.72rem', fontWeight: 700,
       color: cfg.color, background: cfg.bg,
     }}>
-      {cfg.icon} {cfg.label}
+      <FontAwesomeIcon icon={cfg.icon} /> {cfg.label}
     </span>
   );
 }
@@ -198,9 +221,9 @@ function SuggestionCard({ suggestion, onActivate, highlighted, cardRef }) {
             <span className="sg-product-name">{suggestion.productName}</span>
             <div className="sg-chips">
               <span className="sg-exp-chip" style={{ color: expCfg.color, background: expCfg.color + '18' }}>
-                {expCfg.icon} {daysLabel}
+                <FontAwesomeIcon icon={expCfg.icon} /> {daysLabel}
               </span>
-              <span className="sg-stock-chip">📦 {Number(suggestion.currentQuantity).toLocaleString('es-AR')} u. en stock</span>
+              <span className="sg-stock-chip"><FontAwesomeIcon icon={faCookieBite} /> {Number(suggestion.currentQuantity).toLocaleString('es-AR')} u. en stock</span>
               <span className="sg-batch-chip">Lote #{suggestion.batchId}</span>
             </div>
           </div>
@@ -210,7 +233,7 @@ function SuggestionCard({ suggestion, onActivate, highlighted, cardRef }) {
           </div>
         </div>
         <div className="sg-date-row">
-          <span className="sg-date-label">📅 Vencimiento:</span>
+          <span className="sg-date-label"><FontAwesomeIcon icon={faCalendarDays} /> Vencimiento:</span>
           <span className="sg-date-val" style={{ color: expCfg.color, fontWeight: 700 }}>
             {formatDate(suggestion.expirationDate)}
           </span>
@@ -224,7 +247,7 @@ function SuggestionCard({ suggestion, onActivate, highlighted, cardRef }) {
           onClick={() => onActivate(suggestion)}
           style={{ '--btn-color': expCfg.color }}
         >
-          🏷️ Dar de alta esta promoción
+          <FontAwesomeIcon icon={faTags} /> Dar de alta esta promoción
         </button>
       </div>
 
@@ -301,10 +324,10 @@ function GreenBatchCard({ batch, productName, onActivate }) {
             <span className="gb-product-name">{productName}</span>
             <div className="gb-chips">
               <span className="gb-status-chip" style={{ color: expCfg.color, background: expCfg.color + '18' }}>
-                {expCfg.icon} {expCfg.label}
+                <FontAwesomeIcon icon={expCfg.icon} /> {expCfg.label}
               </span>
               <span className="gb-stock-chip">
-                📦 {Number(batch.currentQuantity).toLocaleString('es-AR')} {ul} disponibles
+                <FontAwesomeIcon icon={faCookieBite} /> {Number(batch.currentQuantity).toLocaleString('es-AR')} {ul} disponibles
               </span>
               <span className="gb-batch-chip">Lote #{batch.id}</span>
             </div>
@@ -318,7 +341,7 @@ function GreenBatchCard({ batch, productName, onActivate }) {
         </div>
         {batch.expirationDate && (
           <div className="gb-date-row">
-            <span className="gb-date-label">📅 Vencimiento:</span>
+            <span className="gb-date-label"><FontAwesomeIcon icon={faCalendarDays} /> Vencimiento:</span>
             <span className="gb-date-val" style={{ color: expCfg.color, fontWeight: 700 }}>
               {formatDate(batch.expirationDate)}
             </span>
@@ -326,14 +349,14 @@ function GreenBatchCard({ batch, productName, onActivate }) {
         )}
         {!batch.expirationDate && (
           <div className="gb-date-row">
-            <span className="gb-date-label">📅 Sin fecha de vencimiento</span>
+            <span className="gb-date-label"><FontAwesomeIcon icon={faCalendarDays} /> Sin fecha de vencimiento</span>
           </div>
         )}
         <button
           className="gb-activate-btn"
           onClick={() => onActivate(batch, productName)}
         >
-          🏷️ Crear promoción para este lote
+          <FontAwesomeIcon icon={faTags} /> Crear promoción para este lote
         </button>
       </div>
 
@@ -439,7 +462,7 @@ function PromotionCard({ promotion, onCancel, cancelling, isOwnerUser, highlight
             <div className="pc-badges">
               <StatusBadge status={promotion.status} />
               {promotion.suggestedBySystem && (
-                <span className="pc-system-badge">🤖 Sistema</span>
+                <span className="pc-system-badge"><FontAwesomeIcon icon={faRobot} /> Sistema</span>
               )}
             </div>
           </div>
@@ -462,16 +485,16 @@ function PromotionCard({ promotion, onCancel, cancelling, isOwnerUser, highlight
             )}
           </div>
           <div className="pc-meta">
-            <span className="pc-dates">📅 {formatDateTime(promotion.startDate)} → {formatDateTime(promotion.endDate)}</span>
+            <span className="pc-dates"><FontAwesomeIcon icon={faCalendarDays} /> {formatDateTime(promotion.startDate)} → {formatDateTime(promotion.endDate)}</span>
             {daysLabel && promotion.batchExpirationDate && (
               <span className="pc-batch-exp" style={{ color: promotion.daysToExpire <= 1 ? '#C0392B' : '#D68910' }}>
-                ⏰ Lote: {daysLabel}
+                <FontAwesomeIcon icon={faAlarmClock} /> Lote: {daysLabel}
               </span>
             )}
             {promotion.batchCurrentQuantity != null && (
-              <span className="pc-qty">📦 {Number(promotion.batchCurrentQuantity).toLocaleString('es-AR')} u.</span>
+              <span className="pc-qty"><FontAwesomeIcon icon={faCookieBite} /> {Number(promotion.batchCurrentQuantity).toLocaleString('es-AR')} u.</span>
             )}
-            <span className="pc-expand-icon">{expanded ? '▲' : '▼'}</span>
+            <span className="pc-expand-icon">{expanded ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} />}</span>
           </div>
         </div>
       </div>
@@ -528,7 +551,7 @@ function PromotionCard({ promotion, onCancel, cancelling, isOwnerUser, highlight
               onClick={() => onCancel(promotion)}
               disabled={cancelling}
             >
-              {cancelling ? <span className="pc-spinner" /> : '🚫 Cancelar promoción'}
+              {cancelling ? <span className="pc-spinner" /> : <><FontAwesomeIcon icon={faBan} /> Cancelar promoción</>}
             </button>
           )}
         </div>
@@ -702,7 +725,7 @@ function CreatePromotionForm({ productId, batchId, productName, suggestion, orig
 
   return (
     <form onSubmit={handleSubmit} noValidate className="cpf-form">
-      {error && <div className="cpf-error">⚠ {error}</div>}
+      {error && <div className="cpf-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {error}</div>}
 
       {/* Contexto del lote */}
       <div className="cpf-context">
@@ -806,7 +829,7 @@ function CreatePromotionForm({ productId, batchId, productName, suggestion, orig
 
       {pricePreview && (
         <div className="cpf-price-preview" style={{ color: pricePreview.color }}>
-          💡 {pricePreview.label}
+          <FontAwesomeIcon icon={faPiggyBank} /> {pricePreview.label}
         </div>
       )}
 
@@ -842,7 +865,7 @@ function CreatePromotionForm({ productId, batchId, productName, suggestion, orig
         <button type="submit" className="cpf-submit" disabled={isLoading}>
           {isLoading
             ? <><span className="cpf-spinner" /> Creando...</>
-            : '🏷️ Dar de alta promoción'}
+            : <><FontAwesomeIcon icon={faTags} /> Dar de alta promoción</>}
         </button>
       </div>
 
@@ -1012,7 +1035,7 @@ function ManualPromoTab({ token }) {
     <div className="mpt-wrap">
       {/* Info banner */}
       <div className="mpt-info-banner">
-        <span>💡</span>
+        <span><FontAwesomeIcon icon={faPiggyBank} /></span>
         <p>
           Aquí podés crear una promoción para cualquier lote en{' '}
           <strong>buen estado</strong> (verde o sin vencimiento) de un producto activo.
@@ -1024,7 +1047,7 @@ function ManualPromoTab({ token }) {
 
       {!isLoading && activeProductsWithStock.length === 0 && (
         <div className="mpt-empty">
-          <span className="mpt-empty-icon">✅</span>
+          <span className="mpt-empty-icon"><FontAwesomeIcon icon={faCircleCheck} /></span>
           <h3 className="mpt-empty-title">No hay lotes disponibles</h3>
           <p className="mpt-empty-desc">
             Todos los lotes en buen estado ya tienen una promoción activa,
@@ -1037,7 +1060,7 @@ function ManualPromoTab({ token }) {
         <>
           {/* Buscador de producto */}
           <div className="mpt-search-wrap">
-            <span className="mpt-search-icon">🔍</span>
+            <span className="mpt-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
             <input
               className="mpt-search"
               placeholder="Buscar producto..."
@@ -1045,7 +1068,7 @@ function ManualPromoTab({ token }) {
               onChange={(e) => { setSearchProduct(e.target.value); setSelectedProductId(''); }}
             />
             {searchProduct && (
-              <button className="mpt-search-clear" onClick={() => setSearchProduct('')}>✕</button>
+              <button className="mpt-search-clear" onClick={() => setSearchProduct('')}><FontAwesomeIcon icon={faXmark} /></button>
             )}
           </div>
 
@@ -1069,7 +1092,7 @@ function ManualPromoTab({ token }) {
                     </div>
                     <div className="mpt-pr-right">
                       <span className="mpt-pr-badge">
-                        🟢 {batchCount} lote{batchCount !== 1 ? 's' : ''}
+                        <FontAwesomeIcon icon={faCircle} /> {batchCount} lote{batchCount !== 1 ? 's' : ''}
                       </span>
                       <span className="mpt-pr-arrow">→</span>
                     </div>
@@ -1146,7 +1169,7 @@ function ManualPromoTab({ token }) {
         .mpt-empty-desc  { font-size: 0.84rem; color: var(--warm-gray); max-width: 340px; line-height: 1.6; }
 
         .mpt-search-wrap { position: relative; }
-        .mpt-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+        .mpt-search-icon { color: var(--warm-gray); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
         .mpt-search {
           width: 100%; padding: 10px 36px; box-sizing: border-box;
           font-family: var(--font-body); font-size: 0.88rem;
@@ -1332,25 +1355,25 @@ export default function PromotionsPage() {
   // Definición de tabs según rol
   const TABS = ownerUser
     ? [
-        { key: 'suggestions', label: `💡 Por vencer${suggestions.length > 0 ? ` (${suggestions.length})` : ''}` },
-        { key: 'manual',      label: '🟢 Crear promo manual' },
-        { key: 'active',      label: `✅ Activas${activePromotions.length > 0 ? ` (${activePromotions.length})` : ''}` },
-        { key: 'all',         label: '📋 Todas' },
+        { key: 'suggestions', icon: faPiggyBank,   label: `Por vencer${suggestions.length > 0 ? ` (${suggestions.length})` : ''}` },
+        { key: 'manual',      icon: faCirclePlus,  label: 'Crear promo manual' },
+        { key: 'active',      icon: faCircleCheck, label: `Activas${activePromotions.length > 0 ? ` (${activePromotions.length})` : ''}` },
+        { key: 'all',         icon: faListUl,      label: 'Todas' },
       ]
     : [
-        { key: 'active', label: `✅ Activas${activePromotions.length > 0 ? ` (${activePromotions.length})` : ''}` },
-        { key: 'all',    label: '📋 Todas' },
+        { key: 'active', icon: faCircleCheck, label: `Activas${activePromotions.length > 0 ? ` (${activePromotions.length})` : ''}` },
+        { key: 'all',    icon: faListUl,      label: 'Todas' },
       ];
 
   const fromExpirationBanner = (qBatchId || qPromoId) && (
     <div className="promo-from-expiration-banner">
-      <span>⏰</span>
+      <span><FontAwesomeIcon icon={faAlarmClock} /></span>
       <p>
         {qBatchId
           ? 'Llegaste desde Vencimientos. La sugerencia para el lote seleccionado está resaltada abajo.'
           : 'Llegaste desde Vencimientos. La promoción activa del lote está resaltada abajo.'}
       </p>
-      <button className="promo-banner-close" onClick={() => setSearchParams({})} title="Cerrar aviso">✕</button>
+      <button className="promo-banner-close" onClick={() => setSearchParams({})} title="Cerrar aviso"><FontAwesomeIcon icon={faXmark} /></button>
     </div>
   );
 
@@ -1362,7 +1385,7 @@ export default function PromotionsPage() {
 
         <div className="promo-header">
           <div>
-            <h1 className="promo-title">🏷️ Promociones</h1>
+            <h1 className="promo-title"><FontAwesomeIcon icon={faTags} /> Promociones</h1>
             <p className="promo-sub">
               Descuentos sobre productos · gestión de precios especiales
               {listStatus === 'succeeded' && (
@@ -1376,7 +1399,7 @@ export default function PromotionsPage() {
             disabled={isRefreshing}
             title="Actualizar"
           >
-            <span className={isRefreshing ? 'spin' : ''}>↻</span>
+            <span className={isRefreshing ? 'spin' : ''}><FontAwesomeIcon icon={faRotateRight} /></span>
           </button>
         </div>
 
@@ -1384,7 +1407,7 @@ export default function PromotionsPage() {
 
         {!ownerUser && (
           <div className="promo-info-banner">
-            <span>ℹ️</span>
+            <span><FontAwesomeIcon icon={faCircleInfo} /></span>
             <p>
               Aquí podés ver las <strong>promociones activas</strong> creadas por el encargado.
               Al registrar una venta, el precio de promo se aplica automáticamente.
@@ -1426,13 +1449,13 @@ export default function PromotionsPage() {
               className={`promo-tab ${activeTab === tab.key ? 'active' : ''}`}
               onClick={() => handleTabChange(tab.key)}
             >
-              {tab.label}
+              <FontAwesomeIcon icon={tab.icon} /> {tab.label}
             </button>
           ))}
         </div>
 
-        {listError && <div className="promo-error">⚠ {listError}</div>}
-        {suggestionsError && ownerUser && <div className="promo-error">⚠ {suggestionsError}</div>}
+        {listError && <div className="promo-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {listError}</div>}
+        {suggestionsError && ownerUser && <div className="promo-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {suggestionsError}</div>}
 
         {/* TAB: SUGERENCIAS (lotes por vencer) */}
         {activeTab === 'suggestions' && ownerUser && (
@@ -1440,20 +1463,20 @@ export default function PromotionsPage() {
             {suggestionsStatus === 'loading' && <TableSkeleton rows={3} />}
             {suggestionsStatus === 'succeeded' && suggestions.length === 0 && (
               <div className="promo-empty">
-                <span className="promo-empty-icon">✅</span>
+                <span className="promo-empty-icon"><FontAwesomeIcon icon={faCircleCheck} /></span>
                 <h3 className="promo-empty-title">Sin sugerencias pendientes</h3>
                 <p className="promo-empty-desc">
                   No hay lotes próximos a vencer sin promoción activa.
                 </p>
                 <p className="promo-empty-hint">
-                  Para crear promos en lotes en buen estado, usá la pestaña <strong>"🟢 Crear promo manual"</strong>.
+                  Para crear promos en lotes en buen estado, usá la pestaña <strong>"<FontAwesomeIcon icon={faCirclePlus} /> Crear promo manual"</strong>.
                 </p>
               </div>
             )}
             {suggestionsStatus === 'succeeded' && suggestions.length > 0 && (
               <>
                 <div className="promo-suggestions-banner">
-                  <span>⚡</span>
+                  <span><FontAwesomeIcon icon={faBolt} /></span>
                   <p>
                     El sistema detectó <strong>{suggestions.length}</strong> lote{suggestions.length !== 1 ? 's' : ''} próximo{suggestions.length !== 1 ? 's' : ''} a vencer sin promoción activa.
                   </p>
@@ -1488,7 +1511,7 @@ export default function PromotionsPage() {
             {listStatus === 'loading' && <TableSkeleton rows={4} />}
             {listStatus === 'succeeded' && activePromotions.length === 0 && (
               <div className="promo-empty">
-                <span className="promo-empty-icon">🏷️</span>
+                <span className="promo-empty-icon"><FontAwesomeIcon icon={faTags} /></span>
                 <h3 className="promo-empty-title">No hay promociones activas</h3>
                 <p className="promo-empty-desc">
                   {ownerUser
@@ -1498,10 +1521,10 @@ export default function PromotionsPage() {
                 {ownerUser && (
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
                     <button className="promo-go-suggestions" onClick={() => handleTabChange('suggestions')}>
-                      💡 Ver sugerencias
+                      <FontAwesomeIcon icon={faPiggyBank} /> Ver sugerencias
                     </button>
                     <button className="promo-go-suggestions" style={{ background: '#2E7D32', boxShadow: '0 4px 14px rgba(46,125,50,0.25)' }} onClick={() => handleTabChange('manual')}>
-                      🟢 Crear promo manual
+                      <FontAwesomeIcon icon={faCirclePlus} /> Crear promo manual
                     </button>
                   </div>
                 )}
@@ -1535,7 +1558,7 @@ export default function PromotionsPage() {
             {promotions.length > 0 && (
               <div className="promo-controls">
                 <div className="promo-search-wrap">
-                  <span className="promo-search-icon">🔍</span>
+                  <span className="promo-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
                   <input
                     className="promo-search"
                     placeholder="Buscar por título, producto o empleado..."
@@ -1543,7 +1566,7 @@ export default function PromotionsPage() {
                     onChange={(e) => setSearch(e.target.value)}
                   />
                   {search && (
-                    <button className="promo-search-clear" onClick={() => setSearch('')}>✕</button>
+                    <button className="promo-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
                   )}
                 </div>
                 <select
@@ -1552,16 +1575,16 @@ export default function PromotionsPage() {
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
                   <option value="">Todos los estados</option>
-                  <option value="ACTIVE">✅ Activas</option>
-                  <option value="CANCELLED">🚫 Canceladas</option>
-                  <option value="EXPIRED">⏰ Vencidas</option>
+                  <option value="ACTIVE">Activas</option>
+                  <option value="CANCELLED">Canceladas</option>
+                  <option value="EXPIRED">Vencidas</option>
                 </select>
               </div>
             )}
             {listStatus === 'loading' && <TableSkeleton rows={5} />}
             {listStatus === 'succeeded' && filteredPromotions.length === 0 && (
               <div className="promo-empty">
-                <span className="promo-empty-icon">📋</span>
+                <span className="promo-empty-icon"><FontAwesomeIcon icon={faListUl} /></span>
                 <h3 className="promo-empty-title">
                   {search || statusFilter ? 'Sin resultados' : 'Sin promociones registradas'}
                 </h3>
@@ -1735,7 +1758,7 @@ export default function PromotionsPage() {
 
         .promo-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .promo-search-wrap { position: relative; flex: 1; min-width: 180px; }
-        .promo-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+        .promo-search-icon { color: var(--warm-gray); position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
         .promo-search {
           width: 100%; padding: 9px 34px;
           font-family: var(--font-body); font-size: 0.86rem;

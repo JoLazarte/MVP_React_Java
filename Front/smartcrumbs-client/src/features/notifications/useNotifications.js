@@ -312,7 +312,7 @@ export default function useNotifications() {
   const channel = useSelector(selectNotifChannel);
   const push = usePush({ token, enabled, channel, permission: storedPermission });
   const pushActiveRef = useRef(false);
-  pushActiveRef.current = push.active;
+  pushActiveRef.current = push.active || push.pending;
 
 
   /* ── Sync permiso: polling cada 2s ──────────────────────────────────────── */
@@ -374,7 +374,7 @@ export default function useNotifications() {
     if (!tkn)                        return;
     if (!supportsNotifications())    return;
     if (perm !== 'granted')          return;
-    if (pushActiveRef.current)       return; // el servidor avisa por Push
+    if (pushActiveRef.current)       return; // Push activo (o confirmándose): el servidor avisa
 
 
     if (import.meta.env?.DEV) console.log('[SmartCrumbs Notif] Chequeando vencimientos…');
@@ -575,7 +575,8 @@ export default function useNotifications() {
     storedPermission,
     checkExpirations,
     resetToken, // garantiza que el check corre DESPUÉS del reset del Set local
-    push.active, // al dejar de usar Push, se chequea enseguida de forma local
+    push.active,
+    push.pending, // al terminar de decidir (o dejar Push), se chequea enseguida de forma local
   ]);
 
 

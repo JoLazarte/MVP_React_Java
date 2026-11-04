@@ -28,6 +28,15 @@ import {
 } from '../components/ui/CatalogUI';
 import ProductForm from '../components/catalog/ProductForm';
 import AppTopbar   from '../components/layout/AppTopbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faMagnifyingGlass,
+  faXmark,
+  faTriangleExclamation,
+  faPlateWheat,
+  faCircleCheck,
+  faCircleXmark,
+} from '@fortawesome/free-solid-svg-icons';
 
 const isOwner = (user) => user?.role === 'OWNER';
 
@@ -126,7 +135,7 @@ export default function ProductsPage() {
         {/* ── Filters ── */}
         <FilterBar>
           <div className="prods-search-wrap">
-            <span className="prods-search-icon">🔍</span>
+            <span className="prods-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
             <input
               className="prods-search"
               placeholder="Buscar por nombre, categoría..."
@@ -134,7 +143,7 @@ export default function ProductsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             {search && (
-              <button className="prods-search-clear" onClick={() => setSearch('')}>✕</button>
+              <button className="prods-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
             )}
           </div>
 
@@ -155,8 +164,8 @@ export default function ProductsPage() {
             onChange={(e) => dispatch(setProductFilters({ origin: e.target.value }))}
           >
             <option value="">Todos los orígenes</option>
-            <option value="FRANCHISE">🏷 Franquicia</option>
-            <option value="EXTERNAL">🌐 Externo</option>
+            <option value="FRANCHISE">Franquicia</option>
+            <option value="EXTERNAL">Externo</option>
           </select>
 
           <label className="prods-toggle-all">
@@ -169,12 +178,12 @@ export default function ProductsPage() {
           </label>
         </FilterBar>
 
-        {fetchErr && <div className="prods-error">⚠ {fetchErr}</div>}
+        {fetchErr && <div className="prods-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {fetchErr}</div>}
         {status === 'loading' && <TableSkeleton rows={8} />}
 
         {status === 'succeeded' && filtered.length === 0 && (
           <EmptyState
-            icon="🥐"
+            icon={<FontAwesomeIcon icon={faPlateWheat} />}
             title="No hay productos"
             description={
               search
@@ -280,7 +289,9 @@ export default function ProductsPage() {
                         </div>
                         <div className="pd-item">
                           <span className="pd-label">Perecedero</span>
-                          <span className="pd-value">{p.perishable ? '✅ Sí' : '❌ No'}</span>
+                          <span className="pd-value">{p.perishable
+                            ? <><FontAwesomeIcon icon={faCircleCheck} style={{ color: '#1E8449' }} /> Sí</>
+                            : <><FontAwesomeIcon icon={faCircleXmark} style={{ color: '#C0392B' }} /> No</>}</span>
                         </div>
                         <div className="pd-item">
                           <span className="pd-label">Stock mínimo</span>
@@ -349,7 +360,7 @@ export default function ProductsPage() {
 
         /* ── Search ── */
         .prods-search-wrap { position: relative; flex: 1; min-width: 180px; }
-        .prods-search-icon {
+        .prods-search-icon { color: var(--warm-gray);
           position: absolute; left: 12px; top: 50%;
           transform: translateY(-50%); font-size: 0.85rem; pointer-events: none;
         }

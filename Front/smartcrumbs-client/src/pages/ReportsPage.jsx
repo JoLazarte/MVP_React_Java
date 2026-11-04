@@ -12,6 +12,25 @@ import {
   selectStockBalance, selectStockBalanceByProduct,
 } from '../features/reports/reportsSlice';
 import AppTopbar from '../components/layout/AppTopbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faTrashCanArrowUp,
+  faCookieBite,
+  faMoneyBillWave,
+  faCashRegister,
+  faSackDollar,
+  faInbox,
+  faChartSimple,
+  faPlateWheat,
+  faFolderClosed,
+  faFolderOpen,
+  faCartFlatbed,
+  faMagnifyingGlass,
+  faXmark,
+  faPiggyBank,
+  faCircleInfo,
+  faTriangleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
 
 // ── Formatters ─────────────────────────────────────────────────────────────────
 const fmt = {
@@ -79,7 +98,7 @@ const QUICK_RANGES = [
 function KpiCard({ icon, label, value, sub, color = 'var(--espresso)', accent }) {
   return (
     <div className="rp-kpi" style={{ '--kpi-accent': accent || color }}>
-      <span className="rp-kpi-icon">{icon}</span>
+      <span className="rp-kpi-icon"><FontAwesomeIcon icon={icon} /></span>
       <div className="rp-kpi-body">
         <span className="rp-kpi-label">{label}</span>
         <span className="rp-kpi-value" style={{ color }}>{value}</span>
@@ -96,7 +115,7 @@ function SectionTitle({ children }) {
 function EmptyData({ label = 'Sin datos para el período seleccionado' }) {
   return (
     <div className="rp-empty">
-      <span>📭</span>
+      <span><FontAwesomeIcon icon={faInbox} /></span>
       <p>{label}</p>
     </div>
   );
@@ -113,7 +132,7 @@ function LoadingRow() {
 }
 
 function ErrorBanner({ msg }) {
-  return <div className="rp-error-banner">⚠ {msg}</div>;
+  return <div className="rp-error-banner"><FontAwesomeIcon icon={faTriangleExclamation} /> {msg}</div>;
 }
 
 // ── Bar chart row ──────────────────────────────────────────────────────────────
@@ -185,7 +204,7 @@ function DatePicker({ from, to, onFromChange, onToChange, onApply, loading }) {
           onClick={onApply}
           disabled={!from || !to || loading}
         >
-          {loading ? <span className="rp-spinner" /> : '🔍 Generar'}
+          {loading ? <span className="rp-spinner" /> : <><FontAwesomeIcon icon={faMagnifyingGlass} /> Generar</>}
         </button>
       </div>
     </div>
@@ -239,14 +258,14 @@ function WasteReport({ token, from, to }) {
       {/* KPIs */}
       <div className="rp-kpi-grid">
         <KpiCard
-          icon="🗑️"
+          icon={faTrashCanArrowUp}
           label="Registros de merma"
           value={s ? Number(s.totalWasteRecords).toLocaleString('es-AR') : '—'}
           color="var(--espresso)"
           accent="#C0392B"
         />
         <KpiCard
-          icon="📦"
+          icon={faCookieBite}
           label="Unidades perdidas"
           value={s ? fmt.qty(s.totalQuantity) : '—'}
           sub="unidades totales"
@@ -254,7 +273,7 @@ function WasteReport({ token, from, to }) {
           accent="#E67E22"
         />
         <KpiCard
-          icon="💸"
+          icon={faMoneyBillWave}
           label="Pérdida económica"
           value={s ? fmt.ars(s.totalEconomicLoss) : '—'}
           sub={s && s.totalWasteRecords > 0
@@ -275,7 +294,7 @@ function WasteReport({ token, from, to }) {
         <>
           {/* By category */}
           <div className="rp-card">
-            <SectionTitle>📂 Pérdidas por categoría</SectionTitle>
+            <SectionTitle><FontAwesomeIcon icon={faFolderOpen} /> Pérdidas por categoría</SectionTitle>
             {(byCategory.data?.length ?? 0) === 0
               ? <EmptyData />
               : (byCategory.data || []).map((c, i) => (
@@ -293,7 +312,7 @@ function WasteReport({ token, from, to }) {
 
           {/* By supplier */}
           <div className="rp-card">
-            <SectionTitle>🚚 Pérdidas por proveedor</SectionTitle>
+            <SectionTitle><FontAwesomeIcon icon={faCartFlatbed} /> Pérdidas por proveedor</SectionTitle>
             {(bySupplier.data?.length ?? 0) === 0
               ? <EmptyData />
               : (bySupplier.data || []).map((s, i) => (
@@ -363,14 +382,14 @@ function SalesReport({ token, from, to }) {
       {/* KPIs */}
       <div className="rp-kpi-grid">
         <KpiCard
-          icon="🛒"
+          icon={faCashRegister}
           label="Movimientos de venta"
           value={s ? Number(s.totalMovements).toLocaleString('es-AR') : '—'}
           color="var(--espresso)"
           accent="#2E7D32"
         />
         <KpiCard
-          icon="📦"
+          icon={faCookieBite}
           label="Unidades vendidas"
           value={s ? fmt.qty(s.totalQuantitySold) : '—'}
           sub="unidades totales"
@@ -378,7 +397,7 @@ function SalesReport({ token, from, to }) {
           accent="#2E7D32"
         />
         <KpiCard
-          icon="💰"
+          icon={faSackDollar}
           label="Ingresos totales"
           value={s ? fmt.ars(s.totalRevenue) : '—'}
           sub={s && s.totalMovements > 0
@@ -403,19 +422,19 @@ function SalesReport({ token, from, to }) {
               className={`rp-subtab ${viewMode === 'product' ? 'active' : ''}`}
               onClick={() => setViewMode('product')}
             >
-              🥐 Por producto
+              <FontAwesomeIcon icon={faPlateWheat} /> Por producto
             </button>
             <button
               className={`rp-subtab ${viewMode === 'category' ? 'active' : ''}`}
               onClick={() => setViewMode('category')}
             >
-              🗂 Por categoría
+              <FontAwesomeIcon icon={faFolderClosed} /> Por categoría
             </button>
           </div>
 
           {viewMode === 'product' && (
             <div className="rp-card">
-              <SectionTitle>🥐 Ventas por producto</SectionTitle>
+              <SectionTitle><FontAwesomeIcon icon={faPlateWheat} /> Ventas por producto</SectionTitle>
               {(byProduct.data?.length ?? 0) === 0
                 ? <EmptyData />
                 : (byProduct.data || []).map((p, i) => (
@@ -434,7 +453,7 @@ function SalesReport({ token, from, to }) {
 
           {viewMode === 'category' && (
             <div className="rp-card">
-              <SectionTitle>🗂 Ventas por categoría</SectionTitle>
+              <SectionTitle><FontAwesomeIcon icon={faFolderClosed} /> Ventas por categoría</SectionTitle>
               {(byCategory.data?.length ?? 0) === 0
                 ? <EmptyData />
                 : (byCategory.data || []).map((c, i) => (
@@ -511,16 +530,16 @@ function BalanceReport({ token, from, to }) {
     <div className="rp-tab-content">
       {/* Global KPIs */}
       <div className="rp-kpi-grid rp-kpi-grid--4">
-        <KpiCard icon="📥" label="Stock ingresado"    value={b ? fmt.qty(b.totalEntered) : '—'} sub="unidades" color="var(--espresso)" accent="var(--amber)" />
-        <KpiCard icon="🛒" label="Stock vendido"      value={b ? fmt.qty(b.totalSold)    : '—'} sub="unidades" color="#2E7D32"  accent="#2E7D32" />
-        <KpiCard icon="🗑️" label="Stock descartado"   value={b ? fmt.qty(b.totalWasted)  : '—'} sub="unidades" color="#C0392B"  accent="#C0392B" />
-        <KpiCard icon="📦" label="Stock restante"     value={b ? fmt.qty(b.remainingStock): '—'} sub="unidades" color="#1565C0" accent="#1565C0" />
+        <KpiCard icon={faInbox} label="Stock ingresado"    value={b ? fmt.qty(b.totalEntered) : '—'} sub="unidades" color="var(--espresso)" accent="var(--amber)" />
+        <KpiCard icon={faCashRegister} label="Stock vendido"      value={b ? fmt.qty(b.totalSold)    : '—'} sub="unidades" color="#2E7D32"  accent="#2E7D32" />
+        <KpiCard icon={faTrashCanArrowUp} label="Stock descartado"   value={b ? fmt.qty(b.totalWasted)  : '—'} sub="unidades" color="#C0392B"  accent="#C0392B" />
+        <KpiCard icon={faCookieBite} label="Stock restante"     value={b ? fmt.qty(b.remainingStock): '—'} sub="unidades" color="#1565C0" accent="#1565C0" />
       </div>
 
       {/* Efficiency gauges */}
       {b && (
         <div className="rp-card rp-gauges-card">
-          <SectionTitle>📊 Índices de eficiencia del período</SectionTitle>
+          <SectionTitle><FontAwesomeIcon icon={faChartSimple} /> Índices de eficiencia del período</SectionTitle>
           <div className="rp-gauges">
             <GaugeBar
               label="Tasa de ventas (vendido / ingresado)"
@@ -543,7 +562,7 @@ function BalanceReport({ token, from, to }) {
           </div>
           <div className="rp-gauge-legend">
             <span className="rp-gauge-tip">
-              💡 <strong>Tasa de ventas ideal:</strong> lo más alta posible.
+              <FontAwesomeIcon icon={faPiggyBank} /> <strong>Tasa de ventas ideal:</strong> lo más alta posible.
               <strong> Tasa de descarte ideal:</strong> la más baja posible.
             </span>
           </div>
@@ -559,12 +578,12 @@ function BalanceReport({ token, from, to }) {
       {/* Product breakdown */}
       {!isLoading && (
         <div className="rp-card">
-          <SectionTitle>🥐 Balance por producto</SectionTitle>
+          <SectionTitle><FontAwesomeIcon icon={faPlateWheat} /> Balance por producto</SectionTitle>
 
           {/* Controls */}
           <div className="rp-balance-controls">
             <div className="rp-balance-search-wrap">
-              <span className="rp-bs-icon">🔍</span>
+              <span className="rp-bs-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
               <input
                 className="rp-balance-search"
                 placeholder="Buscar producto o categoría..."
@@ -572,7 +591,7 @@ function BalanceReport({ token, from, to }) {
                 onChange={(e) => setSearch(e.target.value)}
               />
               {search && (
-                <button className="rp-bs-clear" onClick={() => setSearch('')}>✕</button>
+                <button className="rp-bs-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
               )}
             </div>
             <select
@@ -694,9 +713,9 @@ export default function ReportsPage() {
   if (user && user.role !== 'OWNER') return null;
 
   const TABS = [
-    { key: 'waste',   label: '🗑️ Mermas',   desc: 'Pérdidas y descarte' },
-    { key: 'sales',   label: '💰 Ventas',    desc: 'Ingresos y productos vendidos' },
-    { key: 'balance', label: '📊 Balance',   desc: 'Stock ingresado vs vendido vs descartado' },
+    { key: 'waste',   icon: faTrashCanArrowUp, label: 'Mermas',   desc: 'Pérdidas y descarte' },
+    { key: 'sales',   icon: faSackDollar,      label: 'Ventas',    desc: 'Ingresos y productos vendidos' },
+    { key: 'balance', icon: faChartSimple,     label: 'Balance',   desc: 'Stock ingresado vs vendido vs descartado' },
   ];
 
   const periodLabel = applied.from && applied.to
@@ -712,7 +731,7 @@ export default function ReportsPage() {
         {/* ── Header ── */}
         <div className="rp-header">
           <div>
-            <h1 className="rp-title">📊 Reportes</h1>
+            <h1 className="rp-title"><FontAwesomeIcon icon={faChartSimple} /> Reportes</h1>
             <p className="rp-subtitle">
               Análisis automático basado en los registros del sistema
               {periodLabel && (
@@ -724,7 +743,7 @@ export default function ReportsPage() {
 
         {/* ── Info banner ── */}
         <div className="rp-info-banner">
-          <span>ℹ️</span>
+          <span><FontAwesomeIcon icon={faCircleInfo} /></span>
           <p>
             Los reportes se generan <strong>automáticamente</strong> a partir de
             los ingresos, ventas y mermas ya registradas en el sistema.
@@ -768,7 +787,7 @@ export default function ReportsPage() {
               className={`rp-tab ${activeTab === tab.key ? 'active' : ''}`}
               onClick={() => setActiveTab(tab.key)}
             >
-              <span className="rp-tab-label">{tab.label}</span>
+              <span className="rp-tab-label"><FontAwesomeIcon icon={tab.icon} /> {tab.label}</span>
               <span className="rp-tab-desc">{tab.desc}</span>
             </button>
           ))}
@@ -922,7 +941,7 @@ export default function ReportsPage() {
           border-top: 3px solid var(--kpi-accent, var(--amber));
           box-shadow: var(--shadow-sm);
         }
-        .rp-kpi-icon  { font-size: 1.35rem; flex-shrink: 0; margin-top: 2px; }
+        .rp-kpi-icon  { color: var(--kpi-accent); font-size: 1.35rem; flex-shrink: 0; margin-top: 2px; }
         .rp-kpi-body  { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
         .rp-kpi-label {
           font-size: 0.66rem; font-weight: 700; text-transform: uppercase;
@@ -989,7 +1008,7 @@ export default function ReportsPage() {
           display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
         }
         .rp-balance-search-wrap { position: relative; flex: 1; min-width: 160px; }
-        .rp-bs-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+        .rp-bs-icon { color: var(--warm-gray); position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
         .rp-balance-search {
           width: 100%; padding: 9px 34px; box-sizing: border-box;
           font-family: var(--font-body); font-size: 0.86rem;

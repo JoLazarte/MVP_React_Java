@@ -129,12 +129,17 @@ public class WebPushServiceImpl implements WebPushService {
 
     @Override
     public void notifyNewAlerts(List<AlertResponse> alerts) {
-        if (!isEnabled() || alerts == null || alerts.isEmpty()) {
+        if (alerts == null || alerts.isEmpty()) {
+            return;
+        }
+        if (!isEnabled()) {
+            log.debug("Push deshabilitado: no se avisan las {} alerta(s) nuevas", alerts.size());
             return;
         }
 
         List<PushSubscription> subscriptions = subscriptionRepository.findByUser_EnabledTrue();
         if (subscriptions.isEmpty()) {
+            log.info("Push: hay {} alerta(s) nueva(s), pero no hay dispositivos suscriptos", alerts.size());
             return;
         }
 

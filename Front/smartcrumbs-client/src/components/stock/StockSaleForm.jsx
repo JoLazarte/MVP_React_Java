@@ -1,4 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCashRegister,
+  faTags,
+  faWheatAwn,
+  faDollarSign,
+  faCircleInfo,
+  faGlobe,
+} from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   registerSale,
@@ -67,7 +76,7 @@ function SuccessView({ result, promoInfo, onNew, onClose }) {
 
   return (
     <div className="sf-success">
-      <div className="sf-success-icon">🛒</div>
+      <div className="sf-success-icon"><FontAwesomeIcon icon={faCashRegister} /></div>
       <h3 className="sf-success-title">¡Venta registrada!</h3>
       <p className="sf-success-desc">
         Se registró la venta de <strong>{totalQty}</strong> unidades de{' '}
@@ -77,7 +86,7 @@ function SuccessView({ result, promoInfo, onNew, onClose }) {
 
       {promoInfo && (
         <div className="sf-promo-applied">
-          🏷️ Precio registrado con promo activa:{' '}
+          <FontAwesomeIcon icon={faTags} /> Precio registrado con promo activa:{' '}
           <strong style={{ color: promoInfo.style.text }}>
             {promoInfo.displayLabel}
           </strong>
@@ -91,7 +100,7 @@ function SuccessView({ result, promoInfo, onNew, onClose }) {
 
       {!promoInfo && (
         <div className="sf-no-promo-applied">
-          💲 Precio sin promoción registrado correctamente.
+          <FontAwesomeIcon icon={faDollarSign} /> Precio sin promoción registrado correctamente.
         </div>
       )}
 
@@ -120,7 +129,7 @@ function SuccessView({ result, promoInfo, onNew, onClose }) {
           gap: 14px; padding: 8px 0 4px; text-align: center;
           animation: fadeIn 0.3s ease;
         }
-        .sf-success-icon  { font-size: 3rem; }
+        .sf-success-icon  { font-size: 3rem; color: var(--amber); }
         .sf-success-title {
           font-family: var(--font-display); font-size: 1.3rem;
           font-weight: 700; color: var(--espresso);
@@ -197,7 +206,7 @@ function PromoBanner({ promotion, originalPrice, quantity }) {
       {/* Cabecera */}
       <div className="pb-header">
         <span className="pb-badge" style={{ background: style.badge }}>
-          🏷️ PROMO ACTIVA
+          <FontAwesomeIcon icon={faTags} /> PROMO ACTIVA
         </span>
         <span className="pb-title">{promotion.title}</span>
         <span className="pb-type-chip" style={{ color: style.text, background: style.bg, border: `1px solid ${style.border}` }}>
@@ -308,7 +317,7 @@ function NoPriceBanner({ originalPrice, quantity }) {
   return (
     <div className="np-banner">
       <div className="np-row">
-        <span className="np-label">💲 Precio sin promoción:</span>
+        <span className="np-label"><FontAwesomeIcon icon={faDollarSign} /> Precio sin promoción:</span>
         <span className="np-value">{formatARS(originalPrice)}</span>
       </div>
       {qty > 1 && (
@@ -518,7 +527,7 @@ export default function StockSaleForm({ onSuccess, onCancel, initialProductId })
 
       {/* Info banner: FEFO */}
       <div className="sale-fefo-hint">
-        <span className="sale-fefo-icon">ℹ️</span>
+        <span className="sale-fefo-icon"><FontAwesomeIcon icon={faCircleInfo} /></span>
         <p className="sale-fefo-text">
           El stock se descuenta automáticamente comenzando por los lotes más próximos a vencer
           <strong> (FEFO)</strong>. El precio real del momento queda registrado en el historial.
@@ -547,7 +556,9 @@ export default function StockSaleForm({ onSuccess, onCancel, initialProductId })
       {selectedProduct && (
         <div className="sale-product-hint">
           <span className="sale-product-chip origin">
-            {selectedProduct.origin === 'FRANCHISE' ? '🏷 Franquicia' : '🌐 Externo'}
+            {selectedProduct.origin === 'FRANCHISE'
+              ? <><FontAwesomeIcon icon={faWheatAwn} /> Franquicia</>
+              : <><FontAwesomeIcon icon={faGlobe} /> Externo</>}
           </span>
           {selectedProduct.unitType && (
             <span className="sale-product-chip unit">
@@ -626,7 +637,7 @@ export default function StockSaleForm({ onSuccess, onCancel, initialProductId })
         >
           {isLoading
             ? <><span className="sale-spinner" /> Registrando...</>
-            : '🛒 Registrar venta'}
+            : <><FontAwesomeIcon icon={faCashRegister} /> Registrar venta</>}
         </button>
       </div>
 

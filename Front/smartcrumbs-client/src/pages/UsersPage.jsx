@@ -22,6 +22,13 @@ import {
 } from '../components/ui/CatalogUI';
 import EmployeeForm from '../components/users/EmployeeForm';
 import AppTopbar    from '../components/layout/AppTopbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faMagnifyingGlass,
+  faXmark,
+  faTriangleExclamation,
+  faUsers,
+} from '@fortawesome/free-solid-svg-icons';
 
 const isEnabled = (u) => u.enabled !== false;
 
@@ -91,7 +98,7 @@ export default function UsersPage() {
 
         <FilterBar>
           <div className="usr-search-wrap">
-            <span className="usr-search-icon">🔍</span>
+            <span className="usr-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
             <input
               className="usr-search"
               placeholder="Buscar por nombre, usuario o email..."
@@ -99,13 +106,13 @@ export default function UsersPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             {search && (
-              <button className="usr-search-clear" onClick={() => setSearch('')}>✕</button>
+              <button className="usr-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
             )}
           </div>
         </FilterBar>
 
-        {fetchErr && <div className="usr-error">⚠ {fetchErr}</div>}
-        {actStatus === 'failed' && actError && <div className="usr-error">⚠ {actError}</div>}
+        {fetchErr && <div className="usr-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {fetchErr}</div>}
+        {actStatus === 'failed' && actError && <div className="usr-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {actError}</div>}
 
         {status === 'loading' && <TableSkeleton rows={4} />}
 
@@ -148,7 +155,7 @@ export default function UsersPage() {
 
         {status === 'succeeded' && !search && employees.length === 0 && (
           <EmptyState
-            icon="👥"
+            icon={<FontAwesomeIcon icon={faUsers} />}
             title="Todavía no hay empleados"
             description="Creá el primero y pasale su usuario y contraseña para que pueda iniciar sesión."
             action={<PrimaryBtn onClick={openCreate}>+ Nuevo empleado</PrimaryBtn>}
@@ -156,7 +163,7 @@ export default function UsersPage() {
         )}
 
         {status === 'succeeded' && search && filtered.length === 0 && (
-          <EmptyState icon="🔍" title="Sin resultados" description="Probá con otra búsqueda." />
+          <EmptyState icon={<FontAwesomeIcon icon={faMagnifyingGlass} />} title="Sin resultados" description="Probá con otra búsqueda." />
         )}
       </div>
 
@@ -186,7 +193,7 @@ export default function UsersPage() {
         .usr-hint { font-size: 0.85rem; color: var(--warm-gray); line-height: 1.5; margin: 0 0 16px; }
 
         .usr-search-wrap { position: relative; flex: 1; min-width: 200px; }
-        .usr-search-icon {
+        .usr-search-icon { color: var(--warm-gray);
           position: absolute; left: 12px; top: 50%;
           transform: translateY(-50%); font-size: 0.85rem; pointer-events: none;
         }

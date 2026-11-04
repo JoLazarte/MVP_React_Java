@@ -12,6 +12,27 @@ import {
 import { selectToken, selectUser } from '../features/auth/authSlice';
 import { TableSkeleton }           from '../components/ui/CatalogUI';
 import AppTopbar                   from '../components/layout/AppTopbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCircle,
+  faWheatAwn,
+  faGlobe,
+  faCartFlatbed,
+  faClock,
+  faChevronUp,
+  faChevronDown,
+  faShareFromSquare,
+  faCircleCheck,
+  faTriangleExclamation,
+  faBagShopping,
+  faRotateRight,
+  faCircleInfo,
+  faMagnifyingGlass,
+  faXmark,
+  faCookieBite,
+  faPlateWheat,
+  faPrint,
+} from '@fortawesome/free-solid-svg-icons';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -46,18 +67,24 @@ const urgency = (pct) => {
   return 'low';
 };
 
+// Icono FontAwesome como <svg> inline, para el HTML de la ventana de impresión (fuera de React)
+const svgIcon = (def) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${def.icon[0]} ${def.icon[1]}" ` +
+  `style="width:1em;height:1em;vertical-align:-0.125em;margin-right:6px" aria-hidden="true">` +
+  `<path fill="currentColor" d="${def.icon[4]}"/></svg>`;
+
 const URGENCY_CONFIG = {
-  critical: { color: '#C0392B', bg: 'rgba(192,57,43,0.10)', label: 'Crítico',  icon: '🔴' },
-  high:     { color: '#E67E22', bg: 'rgba(230,126,34,0.10)', label: 'Urgente', icon: '🟠' },
-  medium:   { color: '#D68910', bg: 'rgba(214,137,16,0.09)', label: 'Medio',   icon: '🟡' },
-  low:      { color: '#2E7D32', bg: 'rgba(46,125,50,0.09)',  label: 'Bajo',    icon: '🟢' },
+  critical: { color: '#C0392B', bg: 'rgba(192,57,43,0.10)', label: 'Crítico',  icon: faCircle },
+  high:     { color: '#E67E22', bg: 'rgba(230,126,34,0.10)', label: 'Urgente', icon: faCircle },
+  medium:   { color: '#D68910', bg: 'rgba(214,137,16,0.09)', label: 'Medio',   icon: faCircle },
+  low:      { color: '#2E7D32', bg: 'rgba(46,125,50,0.09)',  label: 'Bajo',    icon: faCircle },
 };
 
 const URGENCY_TEXT = { critical: 'CRÍTICO', high: 'URGENTE', medium: 'MEDIO', low: 'BAJO' };
 
 const ORIGIN_LABELS = {
-  FRANCHISE: { icon: '🏷', label: 'Franquicia' },
-  EXTERNAL:  { icon: '🌐', label: 'Externo'    },
+  FRANCHISE: { icon: faWheatAwn, label: 'Franquicia' },
+  EXTERNAL:  { icon: faGlobe, label: 'Externo'    },
 };
 
 // ─── Export helpers ────────────────────────────────────────────────────────────
@@ -388,8 +415,8 @@ function openPrintWindow(items, user) {
 
 <!-- ── Print bar (screen only) ── -->
 <div class="print-bar no-print-hide">
-  <button class="print-btn close-btn" onclick="window.close()">✕ Cerrar</button>
-  <button class="print-btn" onclick="window.print()">🖨 Guardar como PDF</button>
+  <button class="print-btn close-btn" onclick="window.close()">${svgIcon(faXmark)}Cerrar</button>
+  <button class="print-btn" onclick="window.print()">${svgIcon(faPrint)}Guardar como PDF</button>
 </div>
 
 <script>
@@ -463,17 +490,17 @@ function ExportToolbar({ items, user, visible }) {
   if (!visible) return null;
 
   const copyLabel = {
-    idle:    '📋 Copiar lista',
+    idle:    'Copiar lista',
     copying: 'Copiando...',
-    done:    '✅ ¡Copiado!',
-    error:   '⚠ Sin permiso',
+    done:    '¡Copiado!',
+    error:   'Sin permiso',
   }[copyState];
 
   const exportLabel = {
-    idle:    '📄 Exportar PDF',
+    idle:    'Exportar PDF',
     opening: 'Abriendo...',
-    done:    '✅ Abierto',
-    error:   '⚠ Bloqueado',
+    done:    'Abierto',
+    error:   'Bloqueado',
   }[exportState];
 
   const copyColor   = copyState   === 'done' ? '#2E7D32' : copyState   === 'error' ? '#C0392B' : undefined;
@@ -482,7 +509,7 @@ function ExportToolbar({ items, user, visible }) {
   return (
     <div className="et-wrap">
       <div className="et-label">
-        <span className="et-label-icon">📤</span>
+        <span className="et-label-icon"><FontAwesomeIcon icon={faShareFromSquare} /></span>
         <span>Exportar</span>
       </div>
 
@@ -496,8 +523,8 @@ function ExportToolbar({ items, user, visible }) {
           title="Copiar la lista completa como texto al portapapeles"
         >
           <span className="et-btn-icon">
-            {copyState === 'done'    ? '✅' :
-             copyState === 'error'   ? '⚠️' :
+            {copyState === 'done'    ? <FontAwesomeIcon icon={faCircleCheck} /> :
+             copyState === 'error'   ? <FontAwesomeIcon icon={faTriangleExclamation} /> :
              copyState === 'copying' ? <span className="et-spinner" /> :
              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                <rect x="5" y="2" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
@@ -516,8 +543,8 @@ function ExportToolbar({ items, user, visible }) {
           title="Abrir vista de impresión para guardar como PDF"
         >
           <span className="et-btn-icon">
-            {exportState === 'done'    ? '✅' :
-             exportState === 'error'   ? '⚠️' :
+            {exportState === 'done'    ? <FontAwesomeIcon icon={faCircleCheck} /> :
+             exportState === 'error'   ? <FontAwesomeIcon icon={faTriangleExclamation} /> :
              exportState === 'opening' ? <span className="et-spinner" /> :
              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                <path d="M4 1h5.5L13 4.5V15H4V1z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
@@ -532,12 +559,12 @@ function ExportToolbar({ items, user, visible }) {
       {/* Contextual hint */}
       {(exportState === 'error') && (
         <p className="et-hint error">
-          ⚠ Tu navegador bloqueó la ventana emergente. Habilitá las ventanas emergentes para este sitio.
+          <FontAwesomeIcon icon={faTriangleExclamation} /> Tu navegador bloqueó la ventana emergente. Habilitá las ventanas emergentes para este sitio.
         </p>
       )}
       {(copyState === 'error') && (
         <p className="et-hint error">
-          ⚠ No se pudo acceder al portapapeles. Verificá los permisos del navegador.
+          <FontAwesomeIcon icon={faTriangleExclamation} /> No se pudo acceder al portapapeles. Verificá los permisos del navegador.
         </p>
       )}
       {(exportState === 'done') && (
@@ -689,7 +716,7 @@ function RestockCard({ item, index }) {
               <span className="rc-category">{item.categoryName}</span>
             </div>
             <span className="rc-badge" style={{ color: cfg.color, background: cfg.bg }}>
-              {cfg.icon} {cfg.label}
+              <FontAwesomeIcon icon={cfg.icon} /> {cfg.label}
             </span>
           </div>
           <div className="rc-bar-row">
@@ -723,12 +750,12 @@ function RestockCard({ item, index }) {
           </div>
           <div className="rc-supplier-row">
             <span className="rc-origin-chip" style={{ background: 'rgba(28,17,8,0.06)' }}>
-              {org.icon} {org.label}
+              <FontAwesomeIcon icon={org.icon} /> {org.label}
             </span>
             {item.supplierName && (
-              <span className="rc-supplier-chip">🚚 {item.supplierName}</span>
+              <span className="rc-supplier-chip"><FontAwesomeIcon icon={faCartFlatbed} /> {item.supplierName}</span>
             )}
-            <span className="rc-expand-icon">{expanded ? '▲' : '▼'}</span>
+            <span className="rc-expand-icon">{expanded ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} />}</span>
           </div>
         </div>
       </div>
@@ -736,7 +763,7 @@ function RestockCard({ item, index }) {
       {expanded && (
         <div className="rc-detail">
           <div className="rc-schedule">
-            <span className="rc-schedule-icon">🕐</span>
+            <span className="rc-schedule-icon"><FontAwesomeIcon icon={faClock} /></span>
             <div>
               <span className="rc-schedule-label">Horario de pedidos</span>
               <span className="rc-schedule-val">{item.supplierOrderSchedule || 'Consultar con el proveedor'}</span>
@@ -797,7 +824,7 @@ function SummaryStrip({ items }) {
     <div className="ss-strip">
       {pills.map((p) => (
         <div key={p.key} className="ss-pill" style={{ color: p.color, background: p.bg }}>
-          <span className="ss-pill-icon">{p.icon}</span>
+          <span className="ss-pill-icon"><FontAwesomeIcon icon={p.icon} /></span>
           <span className="ss-pill-count">{counts[p.key]}</span>
           <span className="ss-pill-label">{p.label}</span>
         </div>
@@ -881,7 +908,7 @@ export default function RestockPage() {
         {/* ── Header ── */}
         <div className="rp-header">
           <div className="rp-header-text">
-            <h1 className="rp-title">📋 Reposición de stock</h1>
+            <h1 className="rp-title"><FontAwesomeIcon icon={faBagShopping} /> Reposición de stock</h1>
             <p className="rp-sub">
               Productos por debajo del stock mínimo
               {status === 'succeeded' && (
@@ -896,13 +923,13 @@ export default function RestockPage() {
             disabled={isLoading}
             title="Actualizar sugerencias"
           >
-            <span className={isLoading ? 'spin' : ''}>↻</span>
+            <span className={isLoading ? 'spin' : ''}><FontAwesomeIcon icon={faRotateRight} /></span>
           </button>
         </div>
 
         {/* ── Info banner ── */}
         <div className="rp-info-banner">
-          <span>ℹ️</span>
+          <span><FontAwesomeIcon icon={faCircleInfo} /></span>
           <p>
             Productos con <strong>stock mínimo configurado</strong> cuyo inventario actual
             esté por debajo de ese mínimo. El porcentaje indica cuánto stock disponible
@@ -910,7 +937,7 @@ export default function RestockPage() {
           </p>
         </div>
 
-        {error && <div className="rp-error">⚠ {error}</div>}
+        {error && <div className="rp-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {error}</div>}
         {isLoading && <TableSkeleton rows={5} />}
 
         {/* ── Summary strip ── */}
@@ -929,7 +956,7 @@ export default function RestockPage() {
         {status === 'succeeded' && items.length > 0 && (
           <div className="rp-controls">
             <div className="rp-search-wrap">
-              <span className="rp-search-icon">🔍</span>
+              <span className="rp-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
               <input
                 className="rp-search"
                 placeholder="Buscar producto, categoría o proveedor..."
@@ -937,7 +964,7 @@ export default function RestockPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
               {search && (
-                <button className="rp-search-clear" onClick={() => setSearch('')}>✕</button>
+                <button className="rp-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
               )}
             </div>
             <select
@@ -946,8 +973,8 @@ export default function RestockPage() {
               onChange={(e) => setFilterOrigin(e.target.value)}
             >
               <option value="">Todos los orígenes</option>
-              <option value="FRANCHISE">🏷 Franquicia</option>
-              <option value="EXTERNAL">🌐 Externo</option>
+              <option value="FRANCHISE">Franquicia</option>
+              <option value="EXTERNAL">Externo</option>
             </select>
             <button
               className="rp-expand-btn"
@@ -961,7 +988,7 @@ export default function RestockPage() {
         {/* ── Empty: all good ── */}
         {status === 'succeeded' && items.length === 0 && (
           <div className="rp-empty-ok">
-            <span className="rp-empty-icon">✅</span>
+            <span className="rp-empty-icon"><FontAwesomeIcon icon={faCircleCheck} /></span>
             <h3 className="rp-empty-title">¡Todo en orden!</h3>
             <p className="rp-empty-desc">
               No hay productos por debajo del stock mínimo. El inventario está completo.
@@ -975,7 +1002,7 @@ export default function RestockPage() {
         {/* ── Empty: search/filter no match ── */}
         {status === 'succeeded' && items.length > 0 && filtered.length === 0 && (
           <div className="rp-empty-search">
-            <span>🔍</span>
+            <span><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
             <p>Sin resultados para los filtros aplicados.</p>
             <button className="rp-btn-clear" onClick={() => { setSearch(''); setFilterOrigin(''); }}>
               Limpiar filtros
@@ -1002,9 +1029,9 @@ export default function RestockPage() {
         {/* ── Quick nav ── */}
         {status === 'succeeded' && (
           <div className="rp-quick-nav">
-            <button className="rp-nav-btn" onClick={() => navigate('/stock')}>📦 Ver stock completo</button>
-            <button className="rp-nav-btn" onClick={() => navigate('/products')}>🥐 Editar productos</button>
-            <button className="rp-nav-btn" onClick={() => navigate('/suppliers')}>🚚 Ver proveedores</button>
+            <button className="rp-nav-btn" onClick={() => navigate('/stock')}><FontAwesomeIcon icon={faCookieBite} /> Ver stock completo</button>
+            <button className="rp-nav-btn" onClick={() => navigate('/products')}><FontAwesomeIcon icon={faPlateWheat} /> Editar productos</button>
+            <button className="rp-nav-btn" onClick={() => navigate('/suppliers')}><FontAwesomeIcon icon={faCartFlatbed} /> Ver proveedores</button>
           </div>
         )}
 
@@ -1049,7 +1076,7 @@ export default function RestockPage() {
 
         .rp-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .rp-search-wrap { position: relative; flex: 1; min-width: 180px; }
-        .rp-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
+        .rp-search-icon { color: var(--warm-gray); position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; pointer-events: none; }
         .rp-search {
           width: 100%; padding: 9px 34px;
           font-family: var(--font-body); font-size: 0.86rem;

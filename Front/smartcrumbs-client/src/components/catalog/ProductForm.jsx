@@ -1,4 +1,9 @@
 import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faAlarmClock,
+  faCircleCheck,
+} from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   createProduct,
@@ -17,8 +22,8 @@ const ORIGINS    = ['FRANCHISE', 'EXTERNAL'];
 const UNIT_TYPES = ['UNIT', 'KG', 'GRAM', 'TRAY', 'BAG', 'LITER', 'PACK'];
 
 const ORIGIN_LABELS = {
-  FRANCHISE: '🏷 Franquicia',
-  EXTERNAL:  '🌐 Externo',
+  FRANCHISE: 'Franquicia',
+  EXTERNAL:  'Externo',
 };
 
 const UNIT_LABELS = {
@@ -282,7 +287,7 @@ export default function ProductForm({ product = null, onSuccess, onCancel }) {
             disabled={isLoading}
           />
           <div>
-            <span className="pf-toggle-title">⏰ Perecedero</span>
+            <span className="pf-toggle-title"><FontAwesomeIcon icon={faAlarmClock} /> Perecedero</span>
             <span className="pf-toggle-hint">Requiere fecha de vencimiento al ingresar stock</span>
           </div>
         </label>
@@ -295,7 +300,7 @@ export default function ProductForm({ product = null, onSuccess, onCancel }) {
             disabled={isLoading}
           />
           <div>
-            <span className="pf-toggle-title">✅ Activo</span>
+            <span className="pf-toggle-title"><FontAwesomeIcon icon={faCircleCheck} /> Activo</span>
             <span className="pf-toggle-hint">El producto aparece en listados y operaciones</span>
           </div>
         </label>

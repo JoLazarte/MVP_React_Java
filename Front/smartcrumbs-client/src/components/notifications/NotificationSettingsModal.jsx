@@ -1,4 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCircleCheck,
+  faBan,
+  faTriangleExclamation,
+  faCircleXmark,
+  faMinus,
+  faPlus,
+  faLock,
+  faBell,
+  faXmark,
+  faMobileScreenButton,
+  faLaptop,
+  faDesktop,
+  faBolt,
+  faCheck,
+  faTowerBroadcast,
+  faGear,
+  faRotateRight,
+  faFlask,
+} from '@fortawesome/free-solid-svg-icons';
 import { createPortal }                from 'react-dom';
 import { useDispatch, useSelector }    from 'react-redux';
 import { useNavigate }                 from 'react-router-dom';
@@ -38,10 +59,10 @@ function fmt(ts) {
 
 function PermBadge({ p }) {
   const map = {
-    granted:     { icon: '✅', label: 'Concedido',      color: '#2E7D32', bg: 'rgba(46,125,50,0.10)'     },
-    denied:      { icon: '🚫', label: 'Denegado',       color: '#C0392B', bg: 'rgba(192,57,43,0.10)'     },
-    default:     { icon: '⚠️', label: 'Sin configurar', color: '#D68910', bg: 'rgba(214,137,16,0.10)'    },
-    unsupported: { icon: '❌', label: 'No soportado',   color: '#8C7B6B', bg: 'rgba(140,123,107,0.10)'   },
+    granted:     { icon: faCircleCheck, label: 'Concedido',      color: '#2E7D32', bg: 'rgba(46,125,50,0.10)'     },
+    denied:      { icon: faBan, label: 'Denegado',       color: '#C0392B', bg: 'rgba(192,57,43,0.10)'     },
+    default:     { icon: faTriangleExclamation, label: 'Sin configurar', color: '#D68910', bg: 'rgba(214,137,16,0.10)'    },
+    unsupported: { icon: faCircleXmark, label: 'No soportado',   color: '#8C7B6B', bg: 'rgba(140,123,107,0.10)'   },
   };
   const c = map[p] || map.default;
   return (
@@ -49,7 +70,7 @@ function PermBadge({ p }) {
       display:'inline-flex', alignItems:'center', gap:4, padding:'3px 10px',
       borderRadius:20, fontSize:'0.7rem', fontWeight:700, color:c.color, background:c.bg,
     }}>
-      {c.icon} {c.label}
+      <FontAwesomeIcon icon={c.icon} /> {c.label}
     </span>
   );
 }
@@ -131,7 +152,7 @@ function Stepper({ value, onChange, onBlur, onDec, onInc, min, max, disabled, la
           style={btnStyle(disabled || atMin)}
           type="button"
         >
-          −
+          <FontAwesomeIcon icon={faMinus} />
         </button>
         <input
           type="number"
@@ -160,7 +181,7 @@ function Stepper({ value, onChange, onBlur, onDec, onInc, min, max, disabled, la
           style={btnStyle(disabled || atMax)}
           type="button"
         >
-          +
+          <FontAwesomeIcon icon={faPlus} />
         </button>
       </div>
       {label && (
@@ -425,7 +446,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
       return (
         <>
           Notificaciones bloqueadas en Chrome/Edge macOS. Para habilitarlas:<br/>
-          <strong>Chrome:</strong> clic en 🔒 en la barra → Notificaciones → Permitir<br/>
+          <strong>Chrome:</strong> clic en <FontAwesomeIcon icon={faLock} /> en la barra → Notificaciones → Permitir<br/>
           <strong>También verificá:</strong> Preferencias del Sistema → Notificaciones → Chrome/Edge → habilitar.<br/>
           Luego recargá la página.
         </>
@@ -434,7 +455,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
     return (
       <>
         Notificaciones bloqueadas. Para habilitarlas:<br/>
-        <strong>Chrome/Edge:</strong> clic en 🔒 → Notificaciones → Permitir<br/>
+        <strong>Chrome/Edge:</strong> clic en <FontAwesomeIcon icon={faLock} /> → Notificaciones → Permitir<br/>
         <strong>Firefox:</strong> clic en candado → Permiso de notificaciones → Permitir<br/>
         Luego recargá la página.
       </>
@@ -465,7 +486,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
         {/* Header */}
         <div style={{ display:'flex', alignItems:'flex-start', gap:12, padding:'18px 18px 14px', borderBottom:'1px solid #EDE6DB', flexShrink:0 }}>
           <div style={{ width:40, height:40, borderRadius:12, background:'rgba(200,137,58,0.12)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.1rem', flexShrink:0 }}>
-            🔔
+            <FontAwesomeIcon icon={faBell} />
           </div>
           <div style={{ flex:1 }}>
             <div style={{ fontFamily:'Georgia,serif', fontSize:'1rem', fontWeight:700, color:'#1C1108', marginBottom:2 }}>
@@ -480,7 +501,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
             style={{ width:30, height:30, borderRadius:8, background:'#F7F3EE', border:'none', cursor:'pointer', fontSize:'0.9rem', color:'#8C7B6B', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}
             aria-label="Cerrar"
           >
-            ✕
+            <FontAwesomeIcon icon={faXmark} />
           </button>
         </div>
 
@@ -490,7 +511,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
 
           {/* Dispositivo detectado */}
           <div style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 13px', borderRadius:12, background:'rgba(200,137,58,0.06)', border:'1px solid rgba(200,137,58,0.2)' }}>
-            <span style={{ fontSize:'1.3rem' }}>{isMobile ? '📱' : onMac ? '🍎' : '🖥️'}</span>
+            <span style={{ fontSize:'1.3rem' }}><FontAwesomeIcon icon={isMobile ? faMobileScreenButton : onMac ? faLaptop : faDesktop} /></span>
             <div>
               <div style={{ fontSize:'0.62rem', textTransform:'uppercase', letterSpacing:'0.07em', color:'#B5A898', fontWeight:600, marginBottom:2 }}>Dispositivo detectado</div>
               <div style={{ fontSize:'0.84rem', fontWeight:700, color:'#1C1108', display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
@@ -548,7 +569,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
                   disabled={req}
                   style={{ padding:'12px 18px', background: req ? '#D4A853' : '#C8893A', color:'white', border:'none', borderRadius:10, fontFamily:'inherit', fontSize:'0.9rem', fontWeight:700, cursor: req ? 'not-allowed' : 'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 4px 16px rgba(200,137,58,0.35)', width:'100%', justifyContent:'center' }}
                 >
-                  {req ? 'Esperando respuesta...' : '🔔 Conceder permiso de notificaciones'}
+                  {req ? 'Esperando respuesta...' : <><FontAwesomeIcon icon={faBell} /> Conceder permiso de notificaciones</>}
                 </button>
               </>
             )}
@@ -604,9 +625,9 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
           <Card title="Canal de notificación" disabled={!enabled || !canToggle}>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
               {[
-                { v:'auto',    ic:'⚡', nm:'Automático', ds:'Push si está disponible', ex: channel==='auto' ? `→ usando ${effCh==='push'?'Push':'escritorio'}` : null },
-                { v:'desktop', ic:'🖥️', nm:'Escritorio', ds:'Solo con la app abierta' },
-                { v:'push',    ic:'📱', nm:'Push',        ds: pushState==='unsupported' ? 'No soportado aquí' : pushState==='unconfigured' ? 'Servidor sin configurar' : 'Con la app cerrada', na: pushUnavailable },
+                { v:'auto',    ic:faBolt, nm:'Automático', ds:'Push si está disponible', ex: channel==='auto' ? `→ usando ${effCh==='push'?'Push':'escritorio'}` : null },
+                { v:'desktop', ic:faDesktop, nm:'Escritorio', ds:'Solo con la app abierta' },
+                { v:'push',    ic:faMobileScreenButton, nm:'Push',        ds: pushState==='unsupported' ? 'No soportado aquí' : pushState==='unconfigured' ? 'Servidor sin configurar' : 'Con la app cerrada', na: pushUnavailable },
               ].map((o) => (
                 <label
                   key={o.v}
@@ -629,7 +650,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
                     disabled={!enabled || o.na}
                     style={{ display:'none' }}
                   />
-                  <span style={{ fontSize:'1.1rem' }}>{o.ic}</span>
+                  <span style={{ fontSize:'1.1rem' }}><FontAwesomeIcon icon={o.ic} /></span>
                   <span style={{ fontSize:'0.73rem', fontWeight:700, color:'#1C1108' }}>{o.nm}</span>
                   <span style={{ fontSize:'0.62rem', color:'#8C7B6B', lineHeight:1.3 }}>{o.ds}</span>
                   {o.ex && <span style={{ fontSize:'0.6rem', color:'#A06C28', fontWeight:600 }}>{o.ex}</span>}
@@ -640,7 +661,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
 
             {(channel === 'push' || channel === 'auto') && enabled && (
               <div style={{ fontSize:'0.72rem', color: pushState==='error' ? '#C0392B' : '#8C7B6B', lineHeight:1.5 }}>
-                {pushState === 'active'       && '✓ Push activo en este dispositivo: te llegan los avisos aunque la app esté cerrada.'}
+                {pushState === 'active'       && <><FontAwesomeIcon icon={faCheck} /> Push activo en este dispositivo: te llegan los avisos aunque la app esté cerrada.</>}
                 {pushState === 'subscribing'  && 'Activando Push…'}
                 {pushState === 'loading'      && 'Consultando al servidor…'}
                 {pushState === 'error'        && `No se pudo activar Push: ${push?.error || 'error desconocido'}. Se usan notificaciones locales.`}
@@ -652,7 +673,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
 
             {push?.active && (
               <button type="button" style={LINK_BTN} disabled={serverTesting} onClick={handleServerTest}>
-                {serverTesting ? 'Enviando…' : '📡 Enviar push de prueba desde el servidor'}
+                {serverTesting ? 'Enviando…' : <><FontAwesomeIcon icon={faTowerBroadcast} /> Enviar push de prueba desde el servidor</>}
               </button>
             )}
             {serverTestMsg && (
@@ -675,7 +696,7 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
                 onInc={nextIvl}
                 min={5}
                 max={240}
-                disabled={!enabled}
+                disabled={!enabled || Boolean(push?.active)}
                 label={ivlLabel}
               />
             </div>
@@ -700,11 +721,11 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
 
             <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
               <button type="button" style={LINK_BTN} onClick={() => { onClose(); navigate('/alerts'); }}>
-                🔔 Ver alertas
+                <FontAwesomeIcon icon={faBell} /> Ver alertas
               </button>
               {isOwner && (
                 <button type="button" style={LINK_BTN} onClick={() => { onClose(); navigate('/settings'); }}>
-                  ⚙️ Configurar días de aviso
+                  <FontAwesomeIcon icon={faGear} /> Configurar días de aviso
                 </button>
               )}
             </div>
@@ -712,12 +733,12 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
 
             <button
               type="button"
-              style={{ ...LINK_BTN, opacity: enabled ? 1 : 0.5 }}
-              disabled={!enabled}
+              style={{ ...LINK_BTN, opacity: enabled && !push?.active ? 1 : 0.5 }}
+              disabled={!enabled || Boolean(push?.active)}
               title="Vuelve a revisar ahora y avisa de nuevo los lotes de hoy"
               onClick={() => dispatch(clearNotifiedBatches())}
             >
-              ↻ Revisar ahora y volver a avisar
+              <FontAwesomeIcon icon={faRotateRight} /> Revisar ahora y volver a avisar
             </button>
 
             {lastCheck && (
@@ -760,7 +781,9 @@ export default function NotificationSettingsModal({ onClose, onRequestPermission
                       display:'flex', alignItems:'center', gap:8,
                     }}
                   >
-                    {sent ? '✅ Notificación enviada' : '🧪 Enviar notificación de prueba'}
+                    {sent
+                      ? <><FontAwesomeIcon icon={faCircleCheck} /> Notificación enviada</>
+                      : <><FontAwesomeIcon icon={faFlask} /> Enviar notificación de prueba</>}
                   </button>
                 </>
               )}

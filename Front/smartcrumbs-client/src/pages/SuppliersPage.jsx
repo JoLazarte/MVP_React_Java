@@ -24,6 +24,18 @@ import {
   PrimaryBtn,
 } from '../components/ui/CatalogUI';
 import AppTopbar from '../components/layout/AppTopbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faWheatAwn,
+  faStore,
+  faGlobe,
+  faMagnifyingGlass,
+  faXmark,
+  faTriangleExclamation,
+  faCartFlatbed,
+  faCircleUser,
+  faPhone,
+} from '@fortawesome/free-solid-svg-icons';
 import { Alert } from '../components/ui/FormField';
 
 // ─── Guard ────────────────────────────────────────────────────────────────────
@@ -31,9 +43,9 @@ const isOwner = (user) => user?.role === 'OWNER';
 
 // ─── Supplier type labels ─────────────────────────────────────────────────────
 const TYPE_LABELS = {
-  FRANCHISE:  { label: '🏷 Franquicia', color: '#A06C28', bg: 'rgba(200,137,58,0.12)' },
-  WHOLESALER: { label: '🏪 Mayorista',  color: '#1565C0', bg: 'rgba(21,101,192,0.10)' },
-  EXTERNAL:   { label: '🌐 Externo',    color: '#2E7D32', bg: 'rgba(46,125,50,0.10)'  },
+  FRANCHISE:  { label: 'Franquicia', icon: faWheatAwn,  color: '#A06C28', bg: 'rgba(200,137,58,0.12)' },
+  WHOLESALER: { label: 'Mayorista',  icon: faStore, color: '#1565C0', bg: 'rgba(21,101,192,0.10)' },
+  EXTERNAL:   { label: 'Externo',    icon: faGlobe, color: '#2E7D32', bg: 'rgba(46,125,50,0.10)'  },
 };
 
 function TypeBadge({ type }) {
@@ -44,7 +56,7 @@ function TypeBadge({ type }) {
       borderRadius: 20, fontSize: '0.72rem', fontWeight: 600,
       color: cfg.color, background: cfg.bg,
     }}>
-      {cfg.label}
+      {cfg.icon && <FontAwesomeIcon icon={cfg.icon} />} {cfg.label}
     </span>
   );
 }
@@ -153,9 +165,9 @@ function SupplierForm({ supplier = null, onSuccess, onCancel, token, dispatch })
             onChange={handleChange('supplierType')}
             disabled={isLoading}
           >
-            <option value="FRANCHISE">🏷 Franquicia</option>
-            <option value="WHOLESALER">🏪 Mayorista</option>
-            <option value="EXTERNAL">🌐 Externo</option>
+            <option value="FRANCHISE">Franquicia</option>
+            <option value="WHOLESALER">Mayorista</option>
+            <option value="EXTERNAL">Externo</option>
           </select>
           {fieldErrors.supplierType && <span className="sf-err">{fieldErrors.supplierType}</span>}
         </div>
@@ -376,7 +388,7 @@ export default function SuppliersPage() {
         {/* ── Filters ── */}
         <FilterBar>
           <div className="sup-search-wrap">
-            <span className="sup-search-icon">🔍</span>
+            <span className="sup-search-icon"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
             <input
               className="sup-search"
               placeholder="Buscar proveedor..."
@@ -384,7 +396,7 @@ export default function SuppliersPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             {search && (
-              <button className="sup-search-clear" onClick={() => setSearch('')}>✕</button>
+              <button className="sup-search-clear" onClick={() => setSearch('')}><FontAwesomeIcon icon={faXmark} /></button>
             )}
           </div>
 
@@ -394,9 +406,9 @@ export default function SuppliersPage() {
             onChange={(e) => setTypeFilter(e.target.value)}
           >
             <option value="">Todos los tipos</option>
-            <option value="FRANCHISE">🏷 Franquicia</option>
-            <option value="WHOLESALER">🏪 Mayorista</option>
-            <option value="EXTERNAL">🌐 Externo</option>
+            <option value="FRANCHISE">Franquicia</option>
+            <option value="WHOLESALER">Mayorista</option>
+            <option value="EXTERNAL">Externo</option>
           </select>
 
           <label className="sup-toggle-all">
@@ -411,7 +423,7 @@ export default function SuppliersPage() {
 
         {/* ── Fetch error ── */}
         {fetchErr && (
-          <div className="sup-error">⚠ {fetchErr}</div>
+          <div className="sup-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {fetchErr}</div>
         )}
 
         {/* ── Loading ── */}
@@ -420,7 +432,7 @@ export default function SuppliersPage() {
         {/* ── Empty state ── */}
         {status === 'succeeded' && filtered.length === 0 && (
           <EmptyState
-            icon="🚚"
+            icon={<FontAwesomeIcon icon={faCartFlatbed} />}
             title="No hay proveedores"
             description={
               search
@@ -456,10 +468,10 @@ export default function SuppliersPage() {
                     <div className="sup-meta">
                       <TypeBadge type={sup.supplierType} />
                       {sup.contactName && (
-                        <span className="sup-contact">👤 {sup.contactName}</span>
+                        <span className="sup-contact"><FontAwesomeIcon icon={faCircleUser} /> {sup.contactName}</span>
                       )}
                       {sup.phone && (
-                        <span className="sup-contact">📞 {sup.phone}</span>
+                        <span className="sup-contact"><FontAwesomeIcon icon={faPhone} /> {sup.phone}</span>
                       )}
                     </div>
                     {sup.notes && (
@@ -540,7 +552,7 @@ export default function SuppliersPage() {
 
         /* Search */
         .sup-search-wrap { position: relative; flex: 1; min-width: 200px; }
-        .sup-search-icon {
+        .sup-search-icon { color: var(--warm-gray);
           position: absolute; left: 12px; top: 50%;
           transform: translateY(-50%); font-size: 0.85rem; pointer-events: none;
         }

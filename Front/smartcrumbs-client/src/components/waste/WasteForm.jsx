@@ -1,4 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBurst,
+  faUtensils,
+  faTriangleExclamation,
+  faNoteSticky,
+  faSkull,
+  faCircle,
+  faCircleMinus,
+  faTrashCanArrowUp,
+  faCrown,
+  faCircleUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   createWasteRecord,
@@ -15,18 +28,18 @@ import { Alert } from '../ui/FormField';
 
 
 const WASTE_REASONS = [
-  { value: 'DAMAGED',              label: '💥 Dañado / Roto'       },
-  { value: 'INTERNAL_CONSUMPTION', label: '🍽 Consumo interno'     },
-  { value: 'QUALITY_ISSUE',        label: '⚠️ Problema de calidad' },
-  { value: 'OTHER',                label: '📝 Otro'                },
+  { value: 'DAMAGED',              icon: faBurst,                label: 'Dañado / Roto'       },
+  { value: 'INTERNAL_CONSUMPTION', icon: faUtensils,             label: 'Consumo interno'     },
+  { value: 'QUALITY_ISSUE',        icon: faTriangleExclamation,  label: 'Problema de calidad' },
+  { value: 'OTHER',                icon: faNoteSticky,           label: 'Otro'                },
 ];
 
 const EXPIRATION_CONFIG = {
-  EXPIRED:        { color: '#C0392B', icon: '💀' },
-  RED:            { color: '#E74C3C', icon: '🔴' },
-  YELLOW:         { color: '#D68910', icon: '🟡' },
-  GREEN:          { color: '#1E8449', icon: '🟢' },
-  NOT_APPLICABLE: { color: '#8C7B6B', icon: '⚪' },
+  EXPIRED:        { color: '#C0392B', icon: faSkull },
+  RED:            { color: '#E74C3C', icon: faCircle },
+  YELLOW:         { color: '#D68910', icon: faCircle },
+  GREEN:          { color: '#1E8449', icon: faCircle },
+  NOT_APPLICABLE: { color: '#8C7B6B', icon: faCircleMinus },
 };
 
 const formatDate = (d) =>
@@ -67,7 +80,7 @@ function SuccessView({ record, registeredBy, onNew, onClose }) {
 
   return (
     <div className="wf-success">
-      <div className="wf-success-icon">🗑️</div>
+      <div className="wf-success-icon"><FontAwesomeIcon icon={faTrashCanArrowUp} /></div>
       <h3 className="wf-success-title">¡Merma registrada!</h3>
       <p className="wf-success-desc">
         Se registró la baja de{' '}
@@ -103,7 +116,7 @@ function SuccessView({ record, registeredBy, onNew, onClose }) {
           gap: 14px; padding: 8px 0 4px; text-align: center;
           animation: fadeIn 0.3s ease;
         }
-        .wf-success-icon  { font-size: 3rem; }
+        .wf-success-icon  { font-size: 3rem; color: var(--amber); }
         .wf-success-title {
           font-family: var(--font-display); font-size: 1.3rem;
           font-weight: 700; color: var(--espresso);
@@ -311,7 +324,9 @@ export default function WasteForm({ onSuccess, onCancel }) {
             <span className="wf-author-name">
               {fullName}
               <span className="wf-author-role">
-                {user?.role === 'OWNER' ? ' · 👑 Dueño/a' : ' · 👤 Empleado/a'}
+                {user?.role === 'OWNER'
+                  ? <> · <FontAwesomeIcon icon={faCrown} /> Dueño/a</>
+                  : <> · <FontAwesomeIcon icon={faCircleUser} /> Empleado/a</>}
               </span>
             </span>
           </div>
@@ -319,13 +334,13 @@ export default function WasteForm({ onSuccess, onCancel }) {
         </div>
       ) : (
         <div className="wf-author-error">
-          ⚠️ No se pudo identificar al usuario. Cerrá sesión y volvé a ingresar.
+          <FontAwesomeIcon icon={faTriangleExclamation} /> No se pudo identificar al usuario. Cerrá sesión y volvé a ingresar.
         </div>
       )}
 
       {/* Banner informativo */}
       <div className="wf-info-banner">
-        <span>⚠️</span>
+        <span><FontAwesomeIcon icon={faTriangleExclamation} /></span>
         <p>
           Registrá productos <strong>dañados, de consumo interno o con problemas de calidad</strong>.
           Los lotes vencidos son descartados <strong>automáticamente por el sistema</strong>
@@ -350,7 +365,7 @@ export default function WasteForm({ onSuccess, onCancel }) {
                 disabled={isLoading}
                 className="wf-radio"
               />
-              <span className="wf-reason-label">{r.label}</span>
+              <span className="wf-reason-label"><FontAwesomeIcon icon={r.icon} /> {r.label}</span>
             </label>
           ))}
         </div>
@@ -385,7 +400,7 @@ export default function WasteForm({ onSuccess, onCancel }) {
                 EXPIRATION_CONFIG.NOT_APPLICABLE;
               return (
                 <option key={b.id} value={b.id}>
-                  {cfg.icon} {b.productName} · Stock: {b.currentQuantity}{exp}
+                  {b.productName} · Stock: {b.currentQuantity}{exp}
                 </option>
               );
             })}
@@ -415,7 +430,9 @@ export default function WasteForm({ onSuccess, onCancel }) {
                   color: EXPIRATION_CONFIG[selectedBatch.expirationStatus]?.color,
                 }}
               >
-                {EXPIRATION_CONFIG[selectedBatch.expirationStatus]?.icon}{' '}
+                {EXPIRATION_CONFIG[selectedBatch.expirationStatus] && (
+                  <FontAwesomeIcon icon={EXPIRATION_CONFIG[selectedBatch.expirationStatus].icon} />
+                )}{' '}
                 {formatDate(selectedBatch.expirationDate)}
               </span>
             </div>
@@ -503,7 +520,7 @@ export default function WasteForm({ onSuccess, onCancel }) {
               <span className="wf-spinner" /> Registrando...
             </>
           ) : (
-            '🗑️ Registrar merma'
+            <><FontAwesomeIcon icon={faTrashCanArrowUp} /> Registrar merma</>
           )}
         </button>
       </div>

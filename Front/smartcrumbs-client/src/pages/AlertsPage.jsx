@@ -14,6 +14,19 @@ import {
 import { selectToken, selectUser } from '../features/auth/authSlice';
 import { EmptyState, SectionHeader, TableSkeleton } from '../components/ui/CatalogUI';
 import AppTopbar from '../components/layout/AppTopbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faAlarmClock,
+  faCircleXmark,
+  faArrowTrendDown,
+  faBell,
+  faGear,
+  faRotateRight,
+  faCheck,
+  faTriangleExclamation,
+  faCircleCheck,
+  faFolderClosed,
+} from '@fortawesome/free-solid-svg-icons';
 import { formatDateTime } from '../utils/format';
 
 const SEVERITY = {
@@ -23,9 +36,9 @@ const SEVERITY = {
 };
 
 const TYPE = {
-  EXPIRING_SOON: { icon: '⏰', label: 'Por vencer' },
-  EXPIRED:       { icon: '⛔', label: 'Vencido' },
-  LOW_STOCK:     { icon: '📉', label: 'Stock bajo' },
+  EXPIRING_SOON: { icon: faAlarmClock, label: 'Por vencer' },
+  EXPIRED:       { icon: faCircleXmark, label: 'Vencido' },
+  LOW_STOCK:     { icon: faArrowTrendDown, label: 'Stock bajo' },
 };
 
 const PAGE_SIZE = 50;
@@ -78,7 +91,7 @@ export default function AlertsPage() {
             <div className="al-header-actions">
               {isOwner && (
                 <button type="button" className="al-btn" onClick={() => navigate('/settings')}>
-                  ⚙️ Configurar
+                  <FontAwesomeIcon icon={faGear} /> Configurar
                 </button>
               )}
               <button
@@ -87,7 +100,7 @@ export default function AlertsPage() {
                 onClick={() => dispatch(refreshAlerts({ token }))}
                 disabled={refreshing}
               >
-                {refreshing ? 'Actualizando…' : '🔄 Actualizar'}
+                {refreshing ? 'Actualizando…' : <><FontAwesomeIcon icon={faRotateRight} /> Actualizar</>}
               </button>
             </div>
           }
@@ -109,14 +122,14 @@ export default function AlertsPage() {
           </button>
         </div>
 
-        {error && <div className="al-error">⚠ {error}</div>}
-        {actStatus === 'failed' && actError && <div className="al-error">⚠ {actError}</div>}
+        {error && <div className="al-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {error}</div>}
+        {actStatus === 'failed' && actError && <div className="al-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {actError}</div>}
 
         {loading && <TableSkeleton rows={4} />}
 
         {!loading && status === 'succeeded' && list.length === 0 && (
           <EmptyState
-            icon={tab === 'active' ? '✅' : '🗂️'}
+            icon={<FontAwesomeIcon icon={tab === 'active' ? faCircleCheck : faFolderClosed} />}
             title={tab === 'active' ? 'No hay alertas activas' : 'Todavía no hay alertas resueltas'}
             description={tab === 'active'
               ? 'Todo en orden: no hay lotes por vencer ni productos bajo el stock mínimo.'
@@ -129,11 +142,11 @@ export default function AlertsPage() {
             <div className="al-list">
               {shown.map((a, i) => {
                 const sev = SEVERITY[a.severity] || SEVERITY.INFO;
-                const typ = TYPE[a.alertType] || { icon: '🔔', label: 'Alerta' };
+                const typ = TYPE[a.alertType] || { icon: faBell, label: 'Alerta' };
                 const isBusy = busyId === a.id;
                 return (
                   <div key={a.id} className="al-row" style={{ animationDelay: `${Math.min(i, 12) * 0.03}s` }}>
-                    <div className="al-icon" style={{ background: sev.bg, color: sev.color }}>{typ.icon}</div>
+                    <div className="al-icon" style={{ background: sev.bg, color: sev.color }}><FontAwesomeIcon icon={typ.icon} /></div>
 
                     <div className="al-body">
                       <span className="al-msg">{a.message}</span>
@@ -153,7 +166,7 @@ export default function AlertsPage() {
                         onClick={() => dispatch(resolveAlert({ token, id: a.id }))}
                         disabled={isBusy}
                       >
-                        {isBusy ? '…' : '✓ Resolver'}
+                        {isBusy ? '…' : <><FontAwesomeIcon icon={faCheck} /> Resolver</>}
                       </button>
                     )}
                   </div>

@@ -5,6 +5,17 @@ import { fetchSettings, saveSetting, selectSettings } from '../features/settings
 import { selectToken } from '../features/auth/authSlice';
 import { SectionHeader, TableSkeleton } from '../components/ui/CatalogUI';
 import AppTopbar from '../components/layout/AppTopbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faAlarmClock,
+  faTags,
+  faBell,
+  faCircle,
+  faCheck,
+  faMinus,
+  faPlus,
+  faTriangleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
 
 const MIN = 1;
 const MAX = 30;
@@ -28,7 +39,7 @@ function SettingCard({ icon, title, intro, value, saving, saved, error, onSave, 
   return (
     <section className="set-card">
       <div className="set-card-head">
-        <span className="set-icon">{icon}</span>
+        <span className="set-icon"><FontAwesomeIcon icon={icon} /></span>
         <div>
           <h2 className="set-title">{title}</h2>
           <p className="set-intro">{intro}</p>
@@ -36,7 +47,7 @@ function SettingCard({ icon, title, intro, value, saving, saved, error, onSave, 
       </div>
 
       <div className="set-control">
-        <button type="button" className="set-step" onClick={() => step(-1)} disabled={saving} aria-label="Restar un día">−</button>
+        <button type="button" className="set-step" onClick={() => step(-1)} disabled={saving} aria-label="Restar un día"><FontAwesomeIcon icon={faMinus} /></button>
         <input
           className="set-input"
           type="number"
@@ -47,7 +58,7 @@ function SettingCard({ icon, title, intro, value, saving, saved, error, onSave, 
           onChange={(e) => setDraft(e.target.value)}
           disabled={saving}
         />
-        <button type="button" className="set-step" onClick={() => step(1)} disabled={saving} aria-label="Sumar un día">+</button>
+        <button type="button" className="set-step" onClick={() => step(1)} disabled={saving} aria-label="Sumar un día"><FontAwesomeIcon icon={faPlus} /></button>
         <span className="set-unit">día{n === 1 ? '' : 's'}</span>
 
         <button
@@ -58,13 +69,13 @@ function SettingCard({ icon, title, intro, value, saving, saved, error, onSave, 
         >
           {saving ? 'Guardando…' : 'Guardar'}
         </button>
-        {saved && !changed && <span className="set-ok">✓ Guardado</span>}
+        {saved && !changed && <span className="set-ok"><FontAwesomeIcon icon={faCheck} /> Guardado</span>}
       </div>
 
       {!valid && draft.trim() !== '' && (
         <p className="set-warn">Ingresá un número entero entre {MIN} y {MAX}.</p>
       )}
-      {error && <p className="set-error">⚠ {error}</p>}
+      {error && <p className="set-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {error}</p>}
 
       <div className="set-explain">{children}</div>
     </section>
@@ -94,17 +105,17 @@ export default function SettingsPage() {
           subtitle="Plazos de vencimiento y promociones"
           action={
             <button type="button" className="set-link" onClick={() => navigate('/alerts')}>
-              🔔 Ver alertas
+              <FontAwesomeIcon icon={faBell} /> Ver alertas
             </button>
           }
         />
 
         {s.status === 'loading' && s.expirationDays == null && <TableSkeleton rows={2} />}
-        {s.error && <div className="set-fetch-error">⚠ {s.error}</div>}
+        {s.error && <div className="set-fetch-error"><FontAwesomeIcon icon={faTriangleExclamation} /> {s.error}</div>}
 
         {s.expirationDays != null && (
           <SettingCard
-            icon="⏰"
+            icon={faAlarmClock}
             title="Días de aviso de vencimiento"
             intro="Cuántos días antes de vencer un lote se lo marca como “por vencer”."
             value={s.expirationDays}
@@ -115,9 +126,9 @@ export default function SettingsPage() {
           >
             <p>Se aplica a todo el sistema y a todos los dispositivos:</p>
             <ul>
-              <li>🔴 <strong>Rojo:</strong> el lote vence hoy.</li>
-              <li>🟡 <strong>Amarillo:</strong> vence dentro de 1 a {s.expirationDays} día{s.expirationDays === 1 ? '' : 's'}.</li>
-              <li>🟢 <strong>Verde:</strong> faltan más de {s.expirationDays} día{s.expirationDays === 1 ? '' : 's'}.</li>
+              <li><FontAwesomeIcon icon={faCircle} style={{ color: '#E74C3C' }} /> <strong>Rojo:</strong> el lote vence hoy.</li>
+              <li><FontAwesomeIcon icon={faCircle} style={{ color: '#D68910' }} /> <strong>Amarillo:</strong> vence dentro de 1 a {s.expirationDays} día{s.expirationDays === 1 ? '' : 's'}.</li>
+              <li><FontAwesomeIcon icon={faCircle} style={{ color: '#1E8449' }} /> <strong>Verde:</strong> faltan más de {s.expirationDays} día{s.expirationDays === 1 ? '' : 's'}.</li>
             </ul>
             <p>
               Define los colores del semáforo (Inicio, Stock y Vencimientos), las alertas de
@@ -128,7 +139,7 @@ export default function SettingsPage() {
 
         {s.promotionDays != null && (
           <SettingCard
-            icon="🏷️"
+            icon={faTags}
             title="Días para sugerir promociones"
             intro="Hasta cuántos días antes de vencer se le sugiere una promoción a un lote."
             value={s.promotionDays}
@@ -173,7 +184,7 @@ export default function SettingsPage() {
           padding: 20px; margin-bottom: 16px;
         }
         .set-card-head { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
-        .set-icon  { font-size: 1.5rem; }
+        .set-icon  { font-size: 1.5rem; color: var(--espresso); }
         .set-title { margin: 0 0 2px; font-size: 1.05rem; color: var(--espresso); }
         .set-intro { margin: 0; font-size: 0.84rem; color: var(--warm-gray); }
 

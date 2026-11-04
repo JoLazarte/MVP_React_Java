@@ -23,6 +23,7 @@ public class PushAlertListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onAlertsCreated(AlertsCreatedEvent event) {
         try {
+            log.info("Alertas nuevas ({}): se avisa por Push", event.alerts().size());
             webPushService.notifyNewAlerts(event.alerts());
         } catch (Exception e) {
             log.error("No se pudo enviar el push de alertas nuevas", e);
